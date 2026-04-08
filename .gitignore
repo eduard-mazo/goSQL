@@ -1,0 +1,111 @@
+# ============================================================
+#  roc-valores — .gitignore
+# ============================================================
+
+# ── Binarios compilados ──────────────────────────────────────
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# ── Credenciales y configuración local ──────────────────────
+# NUNCA subir archivos con contraseñas o DSN al repositorio
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+*.pem
+*.key
+*.p12
+*.pfx
+tnsnames.ora
+sqlnet.ora
+wallet/
+
+# ── Artefactos de Go ─────────────────────────────────────────
+# Binario de test
+*.test
+
+# Cobertura de tests
+*.out
+coverage.html
+coverage.txt
+
+# Vendor (solo ignorar si no usas vendor mode)
+vendor/
+
+# Cache de módulos local
+go.sum.bak
+
+# Binario principal si se compila en la raíz
+roc-valores
+roc-valores.exe
+
+# ── IDEs y editores ──────────────────────────────────────────
+# VS Code
+.vscode/
+*.code-workspace
+
+# Claude
+.claude/
+
+# JetBrains / GoLand
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim / Neovim
+*.swp
+*.swo
+*~
+.netrwhist
+
+# Emacs
+*#
+.#*
+\#*#
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ── Sistema operativo ────────────────────────────────────────
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux
+.directory
+.Trash-*
+
+# ── Logs y temporales ────────────────────────────────────────
+*.log
+*.tmp
+*.temp
+/tmp/
+/temp/
+
+# ── Docker (si se agrega en el futuro) ───────────────────────
+.dockerignore.local
+docker-compose.override.yml
+
+# ── Profiling de Go ──────────────────────────────────────────
+*.prof
+*.pprof
+cpu.out
+mem.out
