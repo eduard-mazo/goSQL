@@ -11,6 +11,61 @@ import (
 	"goSQL/models"
 )
 
+// MaxFechaBySenalID returns the MAX(FECHA) stored for a given SENAL_ID.
+// Returns (zero, false, nil) when there are no rows yet.
+func (r *ValorRepository) MaxFechaBySenalID(ctx context.Context, senalID float64) (time.Time, bool, error) {
+	var n sql.NullTime
+	err := r.db.QueryRowContext(ctx,
+		`SELECT MAX(FECHA) FROM HEPMGA.ROC_VALORES WHERE SENAL_ID = :senal_id`,
+		sql.Named("senal_id", senalID),
+	).Scan(&n)
+	if err != nil {
+		return time.Time{}, false, fmt.Errorf("ValorRepo.MaxFechaBySenalID: %w", err)
+	}
+	if !n.Valid {
+		return time.Time{}, false, nil
+	}
+	return n.Time, true, nil
+}
+
+// UpsertBatch inserts multiple values, skipping rows that already exist
+// for the same (SENAL_ID, FECHA) pair.
+func (r *ValorRepository) UpsertBatch(ctx context.Context, valores []models.RocValor) error {
+	if len(valores) == 0 {
+		return nil
+	}
+
+	// Oracle MERGE: insert only when the (SENAL_ID, FECHA) pair is absent.
+	const q = `
+		MERGE INTO HEPMGA.ROC_VALORES d
+		USING DUAL ON (d.SENAL_ID = :senal_id AND d.FECHA = :fecha)
+		WHEN NOT MATCHED THEN
+			INSERT (FECHA, SYNCED_AT, SENAL_ID, VALOR)
+			VALUES (:fecha, :synced_at, :senal_id, :valor)`
+
+	return r.db.WithTx(ctx, func(tx *sql.Tx) error {
+		stmt, err := tx.PrepareContext(ctx, q)
+		if err != nil {
+			return fmt.Errorf("ValorRepo.UpsertBatch prepare: %w", err)
+		}
+		defer stmt.Close()
+
+		for _, v := range valores {
+			if _, err := stmt.ExecContext(ctx,
+				sql.Named("senal_id", v.SenalID),
+				sql.Named("fecha", v.Fecha),
+				sql.Named("synced_at", v.SyncedAt),
+				sql.Named("valor", v.Valor),
+			); err != nil {
+				return fmt.Errorf("ValorRepo.UpsertBatch senal_id=%.0f fecha=%s: %w",
+					v.SenalID, v.Fecha.Format(time.RFC3339), err)
+			}
+		}
+		log.Printf("[repo] UpsertBatch → %d valores procesados", len(valores))
+		return nil
+	})
+}
+
 // ValorRepository opera sobre HEPMGA.ROC_VALORES.
 type ValorRepository struct {
 	db *db.DB

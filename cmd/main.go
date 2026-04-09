@@ -2,22 +2,23 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"goSQL/collector"
 	"goSQL/config"
 	"goSQL/db"
-	"goSQL/models"
-	"goSQL/repository"
 )
+
+// Injected at build time via -ldflags (see Makefile).
+var version, commit, buildTime string
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.Println("=== ROC_SENALES / ROC_VALORES — go-ora (sin CGO) ===")
+	log.Printf("roc-collector  version=%s commit=%s built=%s", version, commit, buildTime)
 
 	cfg, err := config.Load()
 	if err != nil {
@@ -26,7 +27,7 @@ func main() {
 
 	database, err := db.New(cfg)
 	if err != nil {
-		log.Fatalf("db.New: %v", err)
+		log.Fatalf("db: %v", err)
 	}
 	defer database.Close()
 
@@ -35,140 +36,72 @@ func main() {
 	if err := database.HealthCheck(ctx); err != nil {
 		log.Fatalf("healthcheck: %v", err)
 	}
-	log.Println("✓ Oracle responde")
 
-	senalRepo := repository.NewSenalRepository(database)
-	valorRepo := repository.NewValorRepository(database)
+	c, err := collector.New(database, "config.yaml")
+	if err != nil {
+		log.Fatalf("collector: %v", err)
+	}
 
-	cmd := "senales"
+	cmd := "run"
 	if len(os.Args) > 1 {
 		cmd = os.Args[1]
 	}
 
 	switch cmd {
-	case "senales":
-		demoSenales(ctx, senalRepo)
-	case "valores":
-		demoValores(ctx, valorRepo)
-	case "insertar":
-		demoInsertar(ctx, valorRepo)
-	case "batch":
-		demoBatch(ctx, valorRepo)
-	default:
-		demoSenales(ctx, senalRepo)
+	case "seed":
+		// Insert missing signals into ROC_SENALES and print the mapping.
+		if err := c.EnsureSignals(ctx); err != nil {
+			log.Fatalf("seed: %v", err)
+		}
+		log.Println("seed completado")
+
+	case "sync":
+		// Seed then run one sync cycle and exit.
+		if err := c.EnsureSignals(ctx); err != nil {
+			log.Fatalf("EnsureSignals: %v", err)
+		}
+		c.SyncAll(ctx)
+
+	default: // "run" — daemon mode
+		if err := c.EnsureSignals(ctx); err != nil {
+			log.Fatalf("EnsureSignals: %v", err)
+		}
+		runDaemon(ctx, c)
 	}
+}
+
+// runDaemon runs an initial sync, then syncs at :05 of every subsequent hour.
+func runDaemon(ctx context.Context, c *collector.Collector) {
+	log.Println("[main] daemon iniciado — sync cada hora en :05")
+
+	// Sync immediately on startup.
+	c.SyncAll(ctx)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	log.Println("cerrando...")
-}
 
-// ── demos ────────────────────────────────────────────────────────────────────
+	for {
+		next := nextSyncTime()
+		wait := time.Until(next)
+		log.Printf("[main] próximo sync: %s (en %s)", next.Format("15:04:05"), wait.Truncate(time.Second))
 
-func demoSenales(ctx context.Context, repo *repository.SenalRepository) {
-	log.Println("\n── señales activas ──")
-
-	senales, err := repo.FindActivas(ctx)
-	if err != nil {
-		log.Printf("ERROR: %v", err)
-		return
-	}
-	if len(senales) == 0 {
-		log.Println("sin registros")
-		return
-	}
-
-	fmt.Printf("%-10s  %-15s  %-15s  %-15s  %-15s  %-10s\n",
-		"SENAL_ID", "B1", "B2", "B3", "ELEMENT", "UNIDADES")
-	fmt.Println("─────────────────────────────────────────────────────────────────────────────")
-	for _, s := range senales {
-		fmt.Printf("%-10.0f  %-15s  %-15s  %-15s  %-15s  %-10s\n",
-			s.SenalID,
-			strVal(s.B1), strVal(s.B2), strVal(s.B3),
-			strVal(s.Element), strVal(s.Unidades),
-		)
+		select {
+		case <-quit:
+			log.Println("[main] señal de parada recibida, cerrando...")
+			return
+		case <-time.After(wait):
+			c.SyncAll(ctx)
+		}
 	}
 }
 
-func demoValores(ctx context.Context, repo *repository.ValorRepository) {
-	log.Println("\n── últimos 10 valores ──")
-
-	valores, err := repo.FindUltimos(ctx, 10)
-	if err != nil {
-		log.Printf("ERROR: %v", err)
-		return
+// nextSyncTime returns the next :05 mark — current hour's :05 if not yet passed,
+// otherwise next hour's :05.
+func nextSyncTime() time.Time {
+	now := time.Now()
+	candidate := time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), 5, 0, 0, now.Location())
+	if !candidate.After(now) {
+		candidate = candidate.Add(time.Hour)
 	}
-	if len(valores) == 0 {
-		log.Println("sin registros")
-		return
-	}
-
-	fmt.Printf("%-10s  %-26s  %-26s  %-12s\n",
-		"SENAL_ID", "FECHA", "SYNCED_AT (controlador)", "VALOR")
-	fmt.Println("─────────────────────────────────────────────────────────────────────────────")
-	for _, v := range valores {
-		fmt.Printf("%-10.0f  %-26s  %-26s  %-12s\n",
-			v.SenalID,
-			v.Fecha.Format("2006-01-02 15:04:05.000"),
-			v.SyncedAt.Format("2006-01-02 15:04:05.000"), // timestamp del campo
-			fmtPtr(v.Valor),
-		)
-	}
-}
-
-func demoInsertar(ctx context.Context, repo *repository.ValorRepository) {
-	log.Println("\n── insertando valor de prueba ──")
-
-	// Simula timestamps recibidos del controlador de campo
-	ahora := time.Now()
-	syncedAt := ahora.Add(-500 * time.Millisecond) // el controlador disparó 500ms antes
-
-	v := models.RocValor{
-		Fecha:    ahora,
-		SyncedAt: syncedAt, // viene del controlador — se guarda exactamente así
-		SenalID:  1,
-		Valor:    models.F(42.75),
-	}
-
-	if err := repo.Insert(ctx, v); err != nil {
-		log.Printf("ERROR Insert: %v", err)
-		return
-	}
-	log.Printf("✓ valor insertado senal_id=%.0f valor=%.2f synced_at=%s",
-		v.SenalID, *v.Valor, v.SyncedAt.Format(time.RFC3339Nano))
-}
-
-func demoBatch(ctx context.Context, repo *repository.ValorRepository) {
-	log.Println("\n── insertando lote ──")
-
-	// Cada fila lleva el SYNCED_AT que capturó el controlador para ese evento
-	t0 := time.Now()
-	lote := []models.RocValor{
-		{Fecha: t0, SyncedAt: t0.Add(-100 * time.Millisecond), SenalID: 1, Valor: models.F(10.1)},
-		{Fecha: t0, SyncedAt: t0.Add(-200 * time.Millisecond), SenalID: 2, Valor: models.F(20.2)},
-		{Fecha: t0, SyncedAt: t0.Add(-300 * time.Millisecond), SenalID: 3, Valor: nil}, // VALOR NULL
-	}
-
-	if err := repo.InsertBatch(ctx, lote); err != nil {
-		log.Printf("ERROR InsertBatch: %v", err)
-		return
-	}
-	log.Printf("✓ lote de %d valores insertado", len(lote))
-}
-
-// ── helpers ──────────────────────────────────────────────────────────────────
-
-func fmtPtr(p *float64) string {
-	if p == nil {
-		return "NULL"
-	}
-	return fmt.Sprintf("%.4f", *p)
-}
-
-func strVal(p *string) string {
-	if p == nil {
-		return "NULL"
-	}
-	return *p
+	return candidate
 }
