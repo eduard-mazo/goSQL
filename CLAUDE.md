@@ -78,6 +78,60 @@ HEPMGA.ROC_VALORES: FECHA (ROC device timestamp), SYNCED_AT (poll time),
                     SENAL_ID (FK), VALOR (NULLable float)
 ```
 
+## Signal identity — unique key and SENAL_ID strategy
+
+Every signal in `ROC_SENALES` is uniquely identified by the composite key **`B1|B2|B3|ELEMENT`**:
+
+| Column  | Meaning                         | Example          |
+|---------|---------------------------------|------------------|
+| B1      | Station code                    | `GTASAJER`       |
+| B2      | System / subsystem              | `MEDICION`       |
+| B3      | Element group (brazo, punto…)   | `BRAZO1`         |
+| ELEMENT | Signal code                     | `PPH`            |
+
+`EnsureSignals` runs at startup (single-threaded):
+1. **One SELECT** — loads all existing rows into `map["B1|B2|B3|ELEMENT"]→SENAL_ID`.
+2. **One MAX query** — seeds a local counter for new IDs.
+3. Iterates config signals: cache hit → reuse ID; cache miss → INSERT + increment counter.
+4. Populates `signalIDs["taskKey:flotante"]→SENAL_ID` for use during sync.
+
+`NextID` uses `SELECT NVL(MAX(SENAL_ID),0)+1` — safe because seeding is single-threaded. If a proper Oracle sequence is ever added, only `NextID` and `Insert` need changing.
+
+## Signal layout in the Modbus record
+
+Each 40-byte ROC hourly record = 10 × float32 (indexed 1–10):
+
+| Index (flotante) | Content                       |
+|------------------|-------------------------------|
+| 1                | Date float (MMDDYY) — internal |
+| 2                | Time float (HHMM) — internal   |
+| 3–10             | Measurement signals            |
+
+`SignalConfig.Flotante` declares which position each signal occupies. In code: `modes[flotante-1].Pick(dbEndian)`.
+
+## config.yaml structure
+
+Every station always has at least one `medidor`. Each `medidor` carries its own `signals` list. Signal entries are self-describing (all Oracle keys are explicit per signal):
+
+```yaml
+stations:
+  - name: "GLAFELIS"          # used as task key prefix
+    ip: "10.155.249.193"
+    port: 502
+    id: 1                     # Modbus UnitID
+    ptr_endian: "cdab"
+    db_endian:  "cdab"
+    data_registers_count: 2   # 1=uint16 ptr, 2=float32 ptr
+    medidores:
+      - label: 1
+        name: "M1"            # task key = "GLAFELIS / M1"
+        pointer_address: 10000
+        base_data_address: 700
+        signals:
+          - { flotante: 3, b1: "GLAFELIS", b2: "RINT", b3: "BRAZO1",
+              element: "PPH", descripcion: "Presión estática", unidades: "un" }
+```
+
 ## Key Conventions
 
 - **Oracle bind variables use `:name` syntax** (not `?`). Always pass `sql.Named("name", value)`.
@@ -88,5 +142,5 @@ HEPMGA.ROC_VALORES: FECHA (ROC device timestamp), SYNCED_AT (poll time),
 - **`SenalID` and `VALOR` are `float64` / `*float64`** because Oracle NUMBER maps to float64 in go-ora.
 - **Delta sync**: on each poll, reads `MAX(FECHA)` from Oracle for a task's first signal, then fetches only the missing circular-buffer slots (0–839) from the device.
 - **Endianness**: ROC devices use `cdab` (word-swapped) by default; LLANOS uses `dcba` for its pointer register and `abcd` for data. Per-station and per-medidor overrides are in `config.yaml`.
-- **Signal layout**: each 40-byte ROC record = 10 × float32. `modes[0]` = date (MMDDYY), `modes[1]` = time (HHMM), `modes[2..9]` = 8 signal values.
-- **`NextID`** in SenalRepository is not concurrent-safe — call only from single-threaded `EnsureSignals`.
+- **Signal extraction**: `modes[sig.Flotante - 1].Pick(dbEndian)` — `flotante` is 1-based, modes are 0-based.
+- **`FindAllMap`** in SenalRepository does a single full SELECT to bootstrap `EnsureSignals`; `NextID` and `Insert` are only called during seeding (single-threaded).

@@ -9,6 +9,30 @@ import (
 	"goSQL/models"
 )
 
+// FindAllMap loads every ROC_SENALES row and returns a lookup map.
+// Key = "B1|B2|B3|ELEMENT" → SENAL_ID. NULL columns are treated as "".
+// Used by collector.EnsureSignals for an efficient single-query bootstrap.
+func (r *SenalRepository) FindAllMap(ctx context.Context) (map[string]float64, error) {
+	const q = `SELECT SENAL_ID, B1, B2, B3, ELEMENT FROM HEPMGA.ROC_SENALES`
+	rows, err := r.db.QueryContext(ctx, q)
+	if err != nil {
+		return nil, fmt.Errorf("SenalRepo.FindAllMap: %w", err)
+	}
+	defer rows.Close()
+
+	m := make(map[string]float64)
+	for rows.Next() {
+		var senalID float64
+		var b1, b2, b3, element sql.NullString
+		if err := rows.Scan(&senalID, &b1, &b2, &b3, &element); err != nil {
+			return nil, fmt.Errorf("SenalRepo.FindAllMap scan: %w", err)
+		}
+		key := fmt.Sprintf("%s|%s|%s|%s", b1.String, b2.String, b3.String, element.String)
+		m[key] = senalID
+	}
+	return m, rows.Err()
+}
+
 // FindByKeys finds a signal by its B1 (station), B2 (meter, empty if none), B3 (signal name).
 // Returns nil if not found.
 func (r *SenalRepository) FindByKeys(ctx context.Context, b1, b2, b3 string) (*models.RocSenal, error) {

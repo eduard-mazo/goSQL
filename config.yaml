@@ -1,230 +1,272 @@
 stations:
-  - name: "EET TASAJERA"
+
+  # ── EET TASAJERA (GTASAJER) ───────────────────────────────────────────────────
+  - name: "GTASAJER"
     ip: "10.155.150.201"
     port: 502
     id: 10
     ptr_endian: "cdab"
     db_endian: "cdab"
-    data_type: "float32"
     data_registers_count: 2
-    signal_names:
-      - "Min. Flujo Acum."
-      - "Pulsos Hora"
-      - "Presión Estática"
-      - "Temperatura"
-      - "Multiplicador"
-      - "Vol. No Corr. MCF"
-      - "Vol. Acum. MCF"
-      - "Energía Acum. MMBTU"
-    # EET TASAJERA tiene 4 medidores distribuidos en dos bloques de puntero
     medidores:
       - label: 1
         name: "M1"
         pointer_address: 10000
         base_data_address: 700
+        signals:
+          - { flotante: 3,  b1: "GTASAJER", b2: "MEDICION", b3: "BRAZO1", element: "MinQAcum", descripcion: "Minutos de flujo acumulados",       unidades: "un" }
+          - { flotante: 4,  b1: "GTASAJER", b2: "MEDICION", b3: "BRAZO1", element: "PulsosH",  descripcion: "Pulsos acumulados hora",             unidades: "un" }
+          - { flotante: 5,  b1: "GTASAJER", b2: "MEDICION", b3: "BRAZO1", element: "PPH",      descripcion: "Presión estática",                   unidades: "un" }
+          - { flotante: 6,  b1: "GTASAJER", b2: "MEDICION", b3: "BRAZO1", element: "TPH",      descripcion: "Temperatura",                        unidades: "un" }
+          - { flotante: 7,  b1: "GTASAJER", b2: "MEDICION", b3: "BRAZO1", element: "Vmult",    descripcion: "Valor multiplicador",                unidades: "un" }
+          - { flotante: 8,  b1: "GTASAJER", b2: "MEDICION", b3: "BRAZO1", element: "VsPH",     descripcion: "Volumen no corregido acumulado",     unidades: "un" }
+          - { flotante: 9,  b1: "GTASAJER", b2: "MEDICION", b3: "BRAZO1", element: "VaPH",     descripcion: "Volumen acumulado",                  unidades: "un" }
+          - { flotante: 10, b1: "GTASAJER", b2: "MEDICION", b3: "BRAZO1", element: "EnaH",     descripcion: "Energía acumulada",                  unidades: "un" }
       - label: 2
         name: "M2"
         pointer_address: 10000
         base_data_address: 704
+        signals:
+          - { flotante: 3,  b1: "GTASAJER", b2: "MEDICION", b3: "BRAZO2", element: "MinQAcum", descripcion: "Minutos de flujo acumulados",       unidades: "un" }
+          - { flotante: 4,  b1: "GTASAJER", b2: "MEDICION", b3: "BRAZO2", element: "PulsosH",  descripcion: "Pulsos acumulados hora",             unidades: "un" }
+          - { flotante: 5,  b1: "GTASAJER", b2: "MEDICION", b3: "BRAZO2", element: "PPH",      descripcion: "Presión estática",                   unidades: "un" }
+          - { flotante: 6,  b1: "GTASAJER", b2: "MEDICION", b3: "BRAZO2", element: "TPH",      descripcion: "Temperatura",                        unidades: "un" }
+          - { flotante: 7,  b1: "GTASAJER", b2: "MEDICION", b3: "BRAZO2", element: "Vmult",    descripcion: "Valor multiplicador",                unidades: "un" }
+          - { flotante: 8,  b1: "GTASAJER", b2: "MEDICION", b3: "BRAZO2", element: "VsPH",     descripcion: "Volumen no corregido acumulado",     unidades: "un" }
+          - { flotante: 9,  b1: "GTASAJER", b2: "MEDICION", b3: "BRAZO2", element: "VaPH",     descripcion: "Volumen acumulado",                  unidades: "un" }
+          - { flotante: 10, b1: "GTASAJER", b2: "MEDICION", b3: "BRAZO2", element: "EnaH",     descripcion: "Energía acumulada",                  unidades: "un" }
 
-  - name: "LLANOS"
+  # ── LLANOS (GLLCUIVA) ─────────────────────────────────────────────────────────
+  # Puntero uint16 (data_registers_count=1); datos en big-endian estándar (abcd).
+  - name: "GLLCUIVA"
     ip: "10.50.184.208"
     port: 502
     id: 2
-    ptr_endian: "dcba"   # puntero: float32 DCBA
-    db_endian: "abcd"    # registros históricos: ABCD (big-endian estándar)
-    data_type: "float32"
-    pointer_address: 10000
-    base_data_address: 700
+    ptr_endian: "dcba"
+    db_endian: "abcd"
     data_registers_count: 1
-    signal_names:
-      - "Min. Flujo Acum."
-      - "Pulsos Hora"
-      - "Presión Estática"
-      - "Temperatura"
-      - "Multiplicador"
-      - "Vol. No Corr. MCF"
-      - "Tasa de Flujo"
-      - "Tasa de Energía"
+    medidores:
+      - label: 1
+        name: "M1"
+        pointer_address: 10000
+        base_data_address: 700
+        signals:
+          - { flotante: 3,  b1: "GLLCUIVA", b2: "DS", b3: "BRAZO1", element: "MinQAcum", descripcion: "Minutos de flujo acumulados",       unidades: "un" }
+          - { flotante: 4,  b1: "GLLCUIVA", b2: "DS", b3: "BRAZO1", element: "PulsosH",  descripcion: "Pulsos acumulados hora",             unidades: "un" }
+          - { flotante: 5,  b1: "GLLCUIVA", b2: "DS", b3: "BRAZO1", element: "PPH",      descripcion: "Presión estática",                   unidades: "un" }
+          - { flotante: 6,  b1: "GLLCUIVA", b2: "DS", b3: "BRAZO1", element: "TPH",      descripcion: "Temperatura",                        unidades: "un" }
+          - { flotante: 7,  b1: "GLLCUIVA", b2: "DS", b3: "BRAZO1", element: "Vmult",    descripcion: "Valor multiplicador",                unidades: "un" }
+          - { flotante: 8,  b1: "GLLCUIVA", b2: "DS", b3: "BRAZO1", element: "VsPH",     descripcion: "Volumen no corregido acumulado",     unidades: "un" }
+          - { flotante: 9,  b1: "GLLCUIVA", b2: "DS", b3: "BRAZO1", element: "TasQPH",   descripcion: "Tasa de flujo",                      unidades: "un" }
+          - { flotante: 10, b1: "GLLCUIVA", b2: "DS", b3: "BRAZO1", element: "TasEPH",   descripcion: "Tasa de energía",                    unidades: "un" }
 
-  - name: "YOLOMBO"
+  # ── YOLOMBO (GYOLOMBO) ────────────────────────────────────────────────────────
+  - name: "GYOLOMBO"
     ip: "10.156.168.116"
     port: 502
     id: 1
     ptr_endian: "cdab"
     db_endian: "cdab"
-    data_type: "float32"
-    pointer_address: 10000
-    base_data_address: 700
-    data_registers_count: 2
-    signal_names:
-      - "Min. Flujo Acum."
-      - "Pulsos Hora"
-      - "Presión Estática"
-      - "Temperatura"
-      - "Multiplicador"
-      - "Vol. No Corr. MCF"
-      - "Vol. Acum. MCF"
-      - "Energía Acum. MMBTU"
-
-  - name: "SANTO DOMINGO"
-    ip: "10.155.115.46"
-    port: 502
-    id: 1
-    ptr_endian: "cdab"
-    db_endian: "cdab"
-    data_type: "float32"
-    pointer_address: 10000
-    base_data_address: 700
-    data_registers_count: 2
-    signal_names:
-      - "Min. Flujo Acum."
-      - "Pulsos Hora"
-      - "Presión Estática"
-      - "Temperatura"
-      - "Multiplicador"
-      - "Vol. No Corr. MCF"
-      - "Vol. Acum. MCF"
-      - "Energía Acum. MMBTU"
-
-  - name: "SAN VICENTE"
-    ip: "10.155.249.194"
-    port: 502
-    id: 1
-    ptr_endian: "cdab"
-    db_endian: "cdab"
-    data_type: "float32"
-    pointer_address: 10000
-    base_data_address: 700
-    data_registers_count: 2
-    signal_names:
-      - "Min. Flujo Acum."
-      - "Pulsos Hora"
-      - "Presión Estática"
-      - "Temperatura"
-      - "Multiplicador"
-      - "Vol. No Corr. MCF"
-      - "Vol. Acum. MCF"
-      - "Energía Acum. MMBTU"
-
-  - name: "PARQUE DE LAS AGUAS"
-    ip: "10.14.224.5"
-    port: 502
-    id: 1
-    ptr_endian: "cdab"
-    db_endian: "cdab"
-    data_type: "float32"
     data_registers_count: 2
     medidores:
       - label: 1
         name: "M1"
         pointer_address: 10000
         base_data_address: 700
-        signal_names:
-          - "Multiplicador"
-          - "Vol. No Corr. MCF"
-          - "Vol. Acum. MCF"
-          - "Energía Acum. MMBTU"
-          - ""
-          - ""
-          - ""
-          - ""
+        signals:
+          - { flotante: 3,  b1: "GYOLOMBO", b2: "RINT", b3: "BRAZO1", element: "MinQAcum", descripcion: "Minutos de flujo acumulados",       unidades: "un" }
+          - { flotante: 4,  b1: "GYOLOMBO", b2: "RINT", b3: "BRAZO1", element: "PulsosH",  descripcion: "Pulsos acumulados hora",             unidades: "un" }
+          - { flotante: 5,  b1: "GYOLOMBO", b2: "RINT", b3: "BRAZO1", element: "PPH",      descripcion: "Presión estática",                   unidades: "un" }
+          - { flotante: 6,  b1: "GYOLOMBO", b2: "RINT", b3: "BRAZO1", element: "TPH",      descripcion: "Temperatura",                        unidades: "un" }
+          - { flotante: 7,  b1: "GYOLOMBO", b2: "RINT", b3: "BRAZO1", element: "Vmult",    descripcion: "Valor multiplicador",                unidades: "un" }
+          - { flotante: 8,  b1: "GYOLOMBO", b2: "RINT", b3: "BRAZO1", element: "VsPH",     descripcion: "Volumen no corregido acumulado",     unidades: "un" }
+          - { flotante: 9,  b1: "GYOLOMBO", b2: "RINT", b3: "BRAZO1", element: "VaPH",     descripcion: "Volumen acumulado",                  unidades: "un" }
+          - { flotante: 10, b1: "GYOLOMBO", b2: "RINT", b3: "BRAZO1", element: "EnaH",     descripcion: "Energía acumulada",                  unidades: "un" }
+
+  # ── SANTO DOMINGO (GSTODOMI) ──────────────────────────────────────────────────
+  - name: "GSTODOMI"
+    ip: "10.155.115.46"
+    port: 502
+    id: 1
+    ptr_endian: "cdab"
+    db_endian: "cdab"
+    data_registers_count: 2
+    medidores:
+      - label: 1
+        name: "M1"
+        pointer_address: 10000
+        base_data_address: 700
+        signals:
+          - { flotante: 3,  b1: "GSTODOMI", b2: "RINT", b3: "BRAZO1", element: "MinQAcum", descripcion: "Minutos de flujo acumulados",       unidades: "un" }
+          - { flotante: 4,  b1: "GSTODOMI", b2: "RINT", b3: "BRAZO1", element: "PulsosH",  descripcion: "Pulsos acumulados hora",             unidades: "un" }
+          - { flotante: 5,  b1: "GSTODOMI", b2: "RINT", b3: "BRAZO1", element: "PPH",      descripcion: "Presión estática",                   unidades: "un" }
+          - { flotante: 6,  b1: "GSTODOMI", b2: "RINT", b3: "BRAZO1", element: "TPH",      descripcion: "Temperatura",                        unidades: "un" }
+          - { flotante: 7,  b1: "GSTODOMI", b2: "RINT", b3: "BRAZO1", element: "Vmult",    descripcion: "Valor multiplicador",                unidades: "un" }
+          - { flotante: 8,  b1: "GSTODOMI", b2: "RINT", b3: "BRAZO1", element: "VsPH",     descripcion: "Volumen no corregido acumulado",     unidades: "un" }
+          - { flotante: 9,  b1: "GSTODOMI", b2: "RINT", b3: "BRAZO1", element: "VaPH",     descripcion: "Volumen acumulado",                  unidades: "un" }
+          - { flotante: 10, b1: "GSTODOMI", b2: "RINT", b3: "BRAZO1", element: "EnaH",     descripcion: "Energía acumulada",                  unidades: "un" }
+
+  # ── SAN VICENTE (GSANVICE) ────────────────────────────────────────────────────
+  - name: "GSANVICE"
+    ip: "10.155.249.194"
+    port: 502
+    id: 1
+    ptr_endian: "cdab"
+    db_endian: "cdab"
+    data_registers_count: 2
+    medidores:
+      - label: 1
+        name: "M1"
+        pointer_address: 10000
+        base_data_address: 700
+        signals:
+          - { flotante: 3,  b1: "GSANVICE", b2: "RINT", b3: "BRAZO1", element: "MinQAcum", descripcion: "Minutos de flujo acumulados",       unidades: "un" }
+          - { flotante: 4,  b1: "GSANVICE", b2: "RINT", b3: "BRAZO1", element: "PulsosH",  descripcion: "Pulsos acumulados hora",             unidades: "un" }
+          - { flotante: 5,  b1: "GSANVICE", b2: "RINT", b3: "BRAZO1", element: "PPH",      descripcion: "Presión estática",                   unidades: "un" }
+          - { flotante: 6,  b1: "GSANVICE", b2: "RINT", b3: "BRAZO1", element: "TPH",      descripcion: "Temperatura",                        unidades: "un" }
+          - { flotante: 7,  b1: "GSANVICE", b2: "RINT", b3: "BRAZO1", element: "Vmult",    descripcion: "Valor multiplicador",                unidades: "un" }
+          - { flotante: 8,  b1: "GSANVICE", b2: "RINT", b3: "BRAZO1", element: "VsPH",     descripcion: "Volumen no corregido acumulado",     unidades: "un" }
+          - { flotante: 9,  b1: "GSANVICE", b2: "RINT", b3: "BRAZO1", element: "VaPH",     descripcion: "Volumen acumulado",                  unidades: "un" }
+          - { flotante: 10, b1: "GSANVICE", b2: "RINT", b3: "BRAZO1", element: "EnaH",     descripcion: "Energía acumulada",                  unidades: "un" }
+
+  # ── PARQUE DE LAS AGUAS (GGNC) ───────────────────────────────────────────────
+  # M1/M2 comparten pointer_address=10000; M3/M4 usan pointer_address=10001.
+  - name: "GGNC"
+    ip: "10.14.224.5"
+    port: 502
+    id: 1
+    ptr_endian: "cdab"
+    db_endian: "cdab"
+    data_registers_count: 2
+    medidores:
+      - label: 1
+        name: "M1"
+        pointer_address: 10000
+        base_data_address: 700
+        signals:
+          - { flotante: 3,  b1: "GGNC", b2: "COMPRE1", b3: "MEDICION", element: "Vmult",  descripcion: "Valor multiplicador",            unidades: "un" }
+          - { flotante: 4,  b1: "GGNC", b2: "COMPRE1", b3: "MEDICION", element: "VsPH",   descripcion: "Volumen no corregido acumulado", unidades: "un" }
+          - { flotante: 5,  b1: "GGNC", b2: "COMPRE1", b3: "MEDICION", element: "VaPH",   descripcion: "Volumen acumulado",              unidades: "un" }
+          - { flotante: 6,  b1: "GGNC", b2: "COMPRE1", b3: "MEDICION", element: "EnaH",   descripcion: "Energía acumulada",              unidades: "un" }
       - label: 2
         name: "M2"
         pointer_address: 10000
         base_data_address: 704
-        signal_names:
-          - "Min. Flujo Acum."
-          - "Pulsos Hora"
-          - "Presión Estática"
-          - "Temperatura"
-          - "Multiplicador"
-          - "Vol. No Corr. MCF"
-          - "Vol. Acum. MCF"
-          - "Energía Acum. MMBTU"
+        signals:
+          - { flotante: 3,  b1: "GGNC", b2: "COMPRE2", b3: "MEDICION", element: "MinQAcum", descripcion: "Minutos de flujo acumulados",       unidades: "un" }
+          - { flotante: 4,  b1: "GGNC", b2: "COMPRE2", b3: "MEDICION", element: "PulsosH",  descripcion: "Pulsos acumulados hora",             unidades: "un" }
+          - { flotante: 5,  b1: "GGNC", b2: "COMPRE2", b3: "MEDICION", element: "PPH",      descripcion: "Presión estática",                   unidades: "un" }
+          - { flotante: 6,  b1: "GGNC", b2: "COMPRE2", b3: "MEDICION", element: "TPH",      descripcion: "Temperatura",                        unidades: "un" }
+          - { flotante: 7,  b1: "GGNC", b2: "COMPRE2", b3: "MEDICION", element: "Vmult",    descripcion: "Valor multiplicador",                unidades: "un" }
+          - { flotante: 8,  b1: "GGNC", b2: "COMPRE2", b3: "MEDICION", element: "VsPH",     descripcion: "Volumen no corregido acumulado",     unidades: "un" }
+          - { flotante: 9,  b1: "GGNC", b2: "COMPRE2", b3: "MEDICION", element: "VaPH",     descripcion: "Volumen acumulado",                  unidades: "un" }
+          - { flotante: 10, b1: "GGNC", b2: "COMPRE2", b3: "MEDICION", element: "EnaH",     descripcion: "Energía acumulada",                  unidades: "un" }
       - label: 3
         name: "M3"
         pointer_address: 10001
         base_data_address: 708
-        signal_names:
-          - "Min. Flujo Acum."
-          - "Presión Estática"
-          - "Temperatura"
-          - "Densidad Base"
-          - "Masa Acum."
-          - "Vol. No Corr. MCF"
-          - "Vol. Acum. MCF"
-          - "Energía Acum. MMBTU"
+        signals:
+          - { flotante: 3,  b1: "GGNC", b2: "PRECARGA", b3: "MEDICION", element: "MinQAcum", descripcion: "Minutos de flujo acumulados",       unidades: "un" }
+          - { flotante: 4,  b1: "GGNC", b2: "PRECARGA", b3: "MEDICION", element: "PPH",      descripcion: "Presión estática",                   unidades: "un" }
+          - { flotante: 5,  b1: "GGNC", b2: "PRECARGA", b3: "MEDICION", element: "TPH",      descripcion: "Temperatura",                        unidades: "un" }
+          - { flotante: 6,  b1: "GGNC", b2: "PRECARGA", b3: "MEDICION", element: "DensBa",   descripcion: "Densidad base",                      unidades: "un" }
+          - { flotante: 7,  b1: "GGNC", b2: "PRECARGA", b3: "MEDICION", element: "MasaaH",   descripcion: "Masa acumulada",                     unidades: "un" }
+          - { flotante: 8,  b1: "GGNC", b2: "PRECARGA", b3: "MEDICION", element: "VsPH",     descripcion: "Volumen no corregido acumulado",     unidades: "un" }
+          - { flotante: 9,  b1: "GGNC", b2: "PRECARGA", b3: "MEDICION", element: "VaPH",     descripcion: "Volumen acumulado",                  unidades: "un" }
+          - { flotante: 10, b1: "GGNC", b2: "PRECARGA", b3: "MEDICION", element: "EnaH",     descripcion: "Energía acumulada",                  unidades: "un" }
       - label: 4
         name: "M4"
-        pointer_address: 10001
+        pointer_address: 10000
         base_data_address: 712
-        signal_names:
-          - "Min. Flujo Acum."
-          - "Pulsos Hora"
-          - "Presión Estática"
-          - "Masa Acum."
-          - "Vol. Acum. MCF"
-          - "Energía Acum. MMBTU"
-          - "k Factor"
-          - "Gravedad Específica"
+        signals:
+          - { flotante: 3,  b1: "GGNC", b2: "ENTRADA", b3: "MEDICION", element: "MinQAcum",  descripcion: "Minutos de flujo acumulados",       unidades: "un" }
+          - { flotante: 4,  b1: "GGNC", b2: "ENTRADA", b3: "MEDICION", element: "PulsosH",   descripcion: "Pulsos acumulados hora",             unidades: "un" }
+          - { flotante: 5,  b1: "GGNC", b2: "ENTRADA", b3: "MEDICION", element: "PPH",       descripcion: "Presión estática",                   unidades: "un" }
+          - { flotante: 6,  b1: "GGNC", b2: "ENTRADA", b3: "MEDICION", element: "MasaaH",    descripcion: "Masa acumulada",                     unidades: "un" }
+          - { flotante: 7,  b1: "GGNC", b2: "ENTRADA", b3: "MEDICION", element: "VaPH",      descripcion: "Volumen acumulado",                  unidades: "un" }
+          - { flotante: 8,  b1: "GGNC", b2: "ENTRADA", b3: "MEDICION", element: "EnaH",      descripcion: "Energía acumulada",                  unidades: "un" }
+          - { flotante: 9,  b1: "GGNC", b2: "ENTRADA", b3: "MEDICION", element: "KFcPH",     descripcion: "k Factor",                           unidades: "un" }
+          - { flotante: 10, b1: "GGNC", b2: "ENTRADA", b3: "MEDICION", element: "GraEspPH",  descripcion: "Gravedad específica",                unidades: "un" }
 
-  - name: "NARE"
+  # ── NARE (GNARE) ──────────────────────────────────────────────────────────────
+  # NOTA: base_data_address de M2 (ARGOS) requiere confirmación en campo.
+  - name: "GNARE"
     ip: "10.14.201.3"
     port: 502
     id: 1
     ptr_endian: "cdab"
     db_endian: "cdab"
-    data_type: "float32"
-    pointer_address: 10000
-    base_data_address: 700
     data_registers_count: 2
-    signal_names:
-      - "Min. Flujo Acum."
-      - "Pulsos Hora"
-      - "Presión Estática"
-      - "Temperatura"
-      - "Multiplicador"
-      - "Vol. No Corr. MCF"
-      - "Vol. Acum. MCF"
-      - "Energía Acum. MMBTU"
+    medidores:
+      - label: 1
+        name: "M1"
+        pointer_address: 10000
+        base_data_address: 700
+        signals:
+          - { flotante: 3,  b1: "GNARE", b2: "RINT", b3: "BRAZO1", element: "MinQAcum", descripcion: "Minutos de flujo acumulados",       unidades: "un" }
+          - { flotante: 4,  b1: "GNARE", b2: "RINT", b3: "BRAZO1", element: "PulsosH",  descripcion: "Pulsos acumulados hora",             unidades: "un" }
+          - { flotante: 5,  b1: "GNARE", b2: "RINT", b3: "BRAZO1", element: "PPH",      descripcion: "Presión estática",                   unidades: "un" }
+          - { flotante: 6,  b1: "GNARE", b2: "RINT", b3: "BRAZO1", element: "TPH",      descripcion: "Temperatura",                        unidades: "un" }
+          - { flotante: 7,  b1: "GNARE", b2: "RINT", b3: "BRAZO1", element: "Vmult",    descripcion: "Valor multiplicador",                unidades: "un" }
+          - { flotante: 8,  b1: "GNARE", b2: "RINT", b3: "BRAZO1", element: "VsPH",     descripcion: "Volumen no corregido acumulado",     unidades: "un" }
+          - { flotante: 9,  b1: "GNARE", b2: "RINT", b3: "BRAZO1", element: "VaPH",     descripcion: "Volumen acumulado",                  unidades: "un" }
+          - { flotante: 10, b1: "GNARE", b2: "RINT", b3: "BRAZO1", element: "EnaH",     descripcion: "Energía acumulada",                  unidades: "un" }
+      - label: 2
+        name: "M2"
+        pointer_address: 10000
+        base_data_address: 704   # CONFIRMAR dirección en campo
+        signals:
+          - { flotante: 3,  b1: "GNARE", b2: "RINT", b3: "ARGOS", element: "MinQAcum", descripcion: "Minutos de flujo acumulados",       unidades: "un" }
+          - { flotante: 4,  b1: "GNARE", b2: "RINT", b3: "ARGOS", element: "PulsosH",  descripcion: "Pulsos acumulados hora",             unidades: "un" }
+          - { flotante: 5,  b1: "GNARE", b2: "RINT", b3: "ARGOS", element: "PPH",      descripcion: "Presión estática",                   unidades: "un" }
+          - { flotante: 6,  b1: "GNARE", b2: "RINT", b3: "ARGOS", element: "TPH",      descripcion: "Temperatura",                        unidades: "un" }
+          - { flotante: 7,  b1: "GNARE", b2: "RINT", b3: "ARGOS", element: "Vmult",    descripcion: "Valor multiplicador",                unidades: "un" }
+          - { flotante: 8,  b1: "GNARE", b2: "RINT", b3: "ARGOS", element: "VsPH",     descripcion: "Volumen no corregido acumulado",     unidades: "un" }
+          - { flotante: 9,  b1: "GNARE", b2: "RINT", b3: "ARGOS", element: "VaPH",     descripcion: "Volumen acumulado",                  unidades: "un" }
+          - { flotante: 10, b1: "GNARE", b2: "RINT", b3: "ARGOS", element: "EnaH",     descripcion: "Energía acumulada",                  unidades: "un" }
 
-  - name: "MACEO"
+  # ── MACEO (GMACEO) ────────────────────────────────────────────────────────────
+  - name: "GMACEO"
     ip: "10.156.148.8"
     port: 502
     id: 1
     ptr_endian: "cdab"
     db_endian: "cdab"
-    data_type: "float32"
-    pointer_address: 10000
-    base_data_address: 700
     data_registers_count: 2
-    signal_names:
-      - "Min. Flujo Acum."
-      - "Pulsos Hora"
-      - "Presión Estática"
-      - "Temperatura"
-      - "Multiplicador"
-      - "Vol. No Corr. MCF"
-      - "Vol. Acum. MCF"
-      - "Energía Acum. MMBTU"
+    medidores:
+      - label: 1
+        name: "M1"
+        pointer_address: 10000
+        base_data_address: 700
+        signals:
+          - { flotante: 3,  b1: "GMACEO", b2: "RINT", b3: "BRAZO1", element: "MinQAcum", descripcion: "Minutos de flujo acumulados",       unidades: "un" }
+          - { flotante: 4,  b1: "GMACEO", b2: "RINT", b3: "BRAZO1", element: "PulsosH",  descripcion: "Pulsos acumulados hora",             unidades: "un" }
+          - { flotante: 5,  b1: "GMACEO", b2: "RINT", b3: "BRAZO1", element: "PPH",      descripcion: "Presión estática",                   unidades: "un" }
+          - { flotante: 6,  b1: "GMACEO", b2: "RINT", b3: "BRAZO1", element: "TPH",      descripcion: "Temperatura",                        unidades: "un" }
+          - { flotante: 7,  b1: "GMACEO", b2: "RINT", b3: "BRAZO1", element: "Vmult",    descripcion: "Valor multiplicador",                unidades: "un" }
+          - { flotante: 8,  b1: "GMACEO", b2: "RINT", b3: "BRAZO1", element: "VsPH",     descripcion: "Volumen no corregido acumulado",     unidades: "un" }
+          - { flotante: 9,  b1: "GMACEO", b2: "RINT", b3: "BRAZO1", element: "VaPH",     descripcion: "Volumen acumulado",                  unidades: "un" }
+          - { flotante: 10, b1: "GMACEO", b2: "RINT", b3: "BRAZO1", element: "EnaH",     descripcion: "Energía acumulada",                  unidades: "un" }
 
-  - name: "FELISA"
+  # ── FELISA (GLAFELIS) ─────────────────────────────────────────────────────────
+  - name: "GLAFELIS"
     ip: "10.155.249.193"
     port: 502
     id: 1
     ptr_endian: "cdab"
     db_endian: "cdab"
-    data_type: "float32"
-    pointer_address: 10000
-    base_data_address: 700
     data_registers_count: 2
-    signal_names:
-      - "Min. Flujo Acum."
-      - "Pulsos Hora"
-      - "Presión Estática"
-      - "Temperatura"
-      - "Multiplicador"
-      - "Vol. No Corr. MCF"
-      - "Vol. Acum. MCF"
-      - "Energía Acum. MMBTU"
+    medidores:
+      - label: 1
+        name: "M1"
+        pointer_address: 10000
+        base_data_address: 700
+        signals:
+          - { flotante: 3,  b1: "GLAFELIS", b2: "RINT", b3: "BRAZO1", element: "MinQAcum", descripcion: "Minutos de flujo acumulados",       unidades: "un" }
+          - { flotante: 4,  b1: "GLAFELIS", b2: "RINT", b3: "BRAZO1", element: "PulsosH",  descripcion: "Pulsos acumulados hora",             unidades: "un" }
+          - { flotante: 5,  b1: "GLAFELIS", b2: "RINT", b3: "BRAZO1", element: "PPH",      descripcion: "Presión estática",                   unidades: "un" }
+          - { flotante: 6,  b1: "GLAFELIS", b2: "RINT", b3: "BRAZO1", element: "TPH",      descripcion: "Temperatura",                        unidades: "un" }
+          - { flotante: 7,  b1: "GLAFELIS", b2: "RINT", b3: "BRAZO1", element: "Vmult",    descripcion: "Valor multiplicador",                unidades: "un" }
+          - { flotante: 8,  b1: "GLAFELIS", b2: "RINT", b3: "BRAZO1", element: "VsPH",     descripcion: "Volumen no corregido acumulado",     unidades: "un" }
+          - { flotante: 9,  b1: "GLAFELIS", b2: "RINT", b3: "BRAZO1", element: "VaPH",     descripcion: "Volumen acumulado",                  unidades: "un" }
+          - { flotante: 10, b1: "GLAFELIS", b2: "RINT", b3: "BRAZO1", element: "EnaH",     descripcion: "Energía acumulada",                  unidades: "un" }
