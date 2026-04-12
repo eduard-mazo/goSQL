@@ -34,7 +34,20 @@ func main() {
 		cmd = args[0]
 	}
 
-	// ── database ─────────────────────────────────────────────────────────────
+	ctx := context.Background()
+
+	// ── push: needs both SQLite (source) and Oracle (destination) ───────────
+	if cmd == "push" {
+		if *sqlitePath == "" {
+			log.Fatalf("'push' requiere --sqlite <path>  (fuente de datos SQLite)")
+		}
+		if err := runPushToOracle(ctx, *sqlitePath); err != nil {
+			log.Fatalf("push: %v", err)
+		}
+		return
+	}
+
+	// ── database (single backend for seed / sync / run) ───────────────────
 	var database *db.DB
 
 	if *sqlitePath != "" {
@@ -55,7 +68,6 @@ func main() {
 	}
 	defer database.Close()
 
-	ctx := context.Background()
 	if err := database.HealthCheck(ctx); err != nil {
 		log.Fatalf("healthcheck: %v", err)
 	}
