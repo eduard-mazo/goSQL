@@ -173,10 +173,33 @@ func (c *Collector) EnsureSignals(ctx context.Context) error {
 	return nil
 }
 
+// ─── syncResult ──────────────────────────────────────────────────────────────
+
+type syncStatus string
+
+const (
+	statusOK          syncStatus = "OK"
+	statusUpToDate    syncStatus = "AL DIA"
+	statusConnFailed  syncStatus = "CONN ERROR"
+	statusPtrFailed   syncStatus = "PTR ERROR"
+	statusWriteError  syncStatus = "WRITE ERROR"
+)
+
+type syncResult struct {
+	Task         string
+	Status       syncStatus
+	RecordsFetched int
+	ValuesWritten  int
+	ZeroSignals    []string // element names whose entire batch was zero
+	Elapsed      time.Duration
+	Err          error
+}
+
 // ─── SyncAll ─────────────────────────────────────────────────────────────────
 
 // SyncAll runs a delta-sync for all configured tasks concurrently.
 // Max 2 simultaneous connections per IP (ROC device limit).
+// Prints a summary table when all tasks complete.
 func (c *Collector) SyncAll(ctx context.Context) {
 	if len(c.tasks) == 0 {
 		return
@@ -191,30 +214,62 @@ func (c *Collector) SyncAll(ctx context.Context) {
 		}
 	}
 
+	results := make([]syncResult, len(c.tasks))
+	var mu sync.Mutex
 	var wg sync.WaitGroup
-	for _, t := range c.tasks {
+
+	for i, t := range c.tasks {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
+			var res syncResult
 			defer func() {
 				if r := recover(); r != nil {
 					log.Printf("[%s] PANIC: %v", t.Key, r)
+					res = syncResult{Task: t.Key, Status: statusConnFailed, Err: fmt.Errorf("panic: %v", r)}
 				}
+				mu.Lock()
+				results[i] = res
+				mu.Unlock()
 			}()
 			sem := ipSems[t.IP]
 			sem <- struct{}{}
 			defer func() { <-sem }()
-			c.syncStation(ctx, t)
+			res = c.syncStation(ctx, t)
 		}()
 	}
 	wg.Wait()
-	log.Printf("[collector] sync completado")
+
+	// ── summary table ────────────────────────────────────────────────────────
+	log.Printf("[collector] ── resumen sync ──────────────────────────────────")
+	ok, warn, fail := 0, 0, 0
+	for _, r := range results {
+		switch r.Status {
+		case statusOK:
+			log.Printf("[collector]  ✓ %-30s %4d registros  %5d valores  %.1fs",
+				r.Task, r.RecordsFetched, r.ValuesWritten, r.Elapsed.Seconds())
+			if len(r.ZeroSignals) > 0 {
+				log.Printf("[collector]    ↳ señales 100%% cero: %v", r.ZeroSignals)
+				warn++
+			} else {
+				ok++
+			}
+		case statusUpToDate:
+			log.Printf("[collector]  · %-30s al día", r.Task)
+			ok++
+		case statusConnFailed, statusPtrFailed, statusWriteError:
+			log.Printf("[collector]  ✗ %-30s [%s] %v", r.Task, r.Status, r.Err)
+			fail++
+		}
+	}
+	log.Printf("[collector] ── OK:%d  WARN:%d  ERROR:%d ─────────────────────", ok, warn, fail)
 }
 
 // ─── syncStation ─────────────────────────────────────────────────────────────
 
-func (c *Collector) syncStation(ctx context.Context, task syncTask) {
+func (c *Collector) syncStation(ctx context.Context, task syncTask) syncResult {
 	start := time.Now()
+	res := syncResult{Task: task.Key}
 
 	// Determine the last stored timestamp for this task using the first valid signal.
 	var lastTS time.Time
@@ -239,8 +294,9 @@ func (c *Collector) syncStation(ctx context.Context, task syncTask) {
 	// Connect to the ROC device.
 	client := modbus.NewModbusClient(task.IP, task.Port, task.UnitID, task.DBEndian)
 	if err := client.Connect(); err != nil {
-		log.Printf("[%s] conexión fallida: %v", task.Key, err)
-		return
+		res.Status = statusConnFailed
+		res.Err = err
+		return res
 	}
 	defer client.Close()
 
@@ -268,8 +324,9 @@ func (c *Collector) syncStation(ctx context.Context, task syncTask) {
 		}
 	}
 	if currentPtr < 0 {
-		log.Printf("[%s] no se pudo leer puntero (err=%v)", task.Key, ptrErr)
-		return
+		res.Status = statusPtrFailed
+		res.Err = ptrErr
+		return res
 	}
 
 	// Read the record at currentPtr to determine T_current for delta calculation.
@@ -288,12 +345,12 @@ func (c *Collector) syncStation(ctx context.Context, task syncTask) {
 	sort.Ints(ptrs)
 
 	if len(ptrs) == 0 {
-		log.Printf("[%s] al día (ptr=%d)", task.Key, currentPtr)
-		return
+		res.Status = statusUpToDate
+		res.Elapsed = time.Since(start)
+		return res
 	}
-	log.Printf("[%s] fetching %d registros (ptr=%d)", task.Key, len(ptrs), currentPtr)
 
-	// Fetch records and build the Oracle batch.
+	// Fetch records and build the batch.
 	polledAt := time.Now()
 	var batch []models.RocValor
 
@@ -344,17 +401,60 @@ func (c *Collector) syncStation(ctx context.Context, task syncTask) {
 		}
 	}
 
+	res.RecordsFetched = len(ptrs)
+
 	if len(batch) == 0 {
-		log.Printf("[%s] sin valores nuevos", task.Key)
-		return
+		res.Status = statusUpToDate
+		res.Elapsed = time.Since(start)
+		return res
 	}
 
-	if err := c.valorRepo.UpsertBatch(ctx, batch); err != nil {
-		log.Printf("[%s] error insertando %d valores: %v", task.Key, len(batch), err)
-		return
+	// Build senal_id → element name for zero-detection reporting.
+	sidElement := make(map[float64]string, len(task.Signals))
+	for _, sig := range task.Signals {
+		sid, ok := c.signalIDs[fmt.Sprintf("%s:%d", task.Key, sig.Flotante)]
+		if ok {
+			sidElement[sid] = sig.Element
+		}
 	}
-	log.Printf("[%s] %d valores escritos en %.1fs (ptr=%d)",
-		task.Key, len(batch), time.Since(start).Seconds(), currentPtr)
+	res.ZeroSignals = detectZeroSignals(batch, sidElement)
+
+	if err := c.valorRepo.UpsertBatch(ctx, batch); err != nil {
+		res.Status = statusWriteError
+		res.Err = err
+		res.Elapsed = time.Since(start)
+		return res
+	}
+
+	res.Status = statusOK
+	res.ValuesWritten = len(batch)
+	res.Elapsed = time.Since(start)
+	return res
+}
+
+// detectZeroSignals returns element names for signals whose every value in the
+// batch is zero. Used to flag idle meters or possibly misconfigured addresses.
+func detectZeroSignals(batch []models.RocValor, sidElement map[float64]string) []string {
+	total := make(map[float64]int)
+	zeros := make(map[float64]int)
+	for _, v := range batch {
+		total[v.SenalID]++
+		if v.Valor == nil || *v.Valor == 0 {
+			zeros[v.SenalID]++
+		}
+	}
+	var result []string
+	for sid, t := range total {
+		if t > 0 && zeros[sid] == t {
+			name := sidElement[sid]
+			if name == "" {
+				name = fmt.Sprintf("ID=%.0f", sid)
+			}
+			result = append(result, name)
+		}
+	}
+	sort.Strings(result)
+	return result
 }
 
 // ─── Delta helpers ────────────────────────────────────────────────────────────
