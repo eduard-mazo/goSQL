@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -185,14 +186,29 @@ const (
 	statusWriteError  syncStatus = "WRITE ERROR"
 )
 
+// gapInfo describes a stretch of missing hourly records between two timestamps.
+type gapInfo struct {
+	From  time.Time
+	To    time.Time
+	Hours int // number of missing hours between From and To
+}
+
+func (g gapInfo) String() string {
+	return fmt.Sprintf("%s→%s(%dh)",
+		g.From.UTC().Format("2006-01-02T15Z"),
+		g.To.UTC().Format("2006-01-02T15Z"),
+		g.Hours)
+}
+
 type syncResult struct {
-	Task         string
-	Status       syncStatus
+	Task           string
+	Status         syncStatus
 	RecordsFetched int
 	ValuesWritten  int
-	ZeroSignals    []string // element names whose entire batch was zero
-	Elapsed      time.Duration
-	Err          error
+	ZeroSignals    []string  // element names whose entire batch was zero
+	Gaps           []gapInfo // hourly gaps (> 1 h) detected in the written batch
+	Elapsed        time.Duration
+	Err            error
 }
 
 // ─── SyncAll ─────────────────────────────────────────────────────────────────
@@ -248,8 +264,16 @@ func (c *Collector) SyncAll(ctx context.Context) {
 		case statusOK:
 			log.Printf("[collector]  ✓ %-30s %4d registros  %5d valores  %.1fs",
 				r.Task, r.RecordsFetched, r.ValuesWritten, r.Elapsed.Seconds())
+			hasWarn := false
 			if len(r.ZeroSignals) > 0 {
 				log.Printf("[collector]    ↳ señales 100%% cero: %v", r.ZeroSignals)
+				hasWarn = true
+			}
+			if len(r.Gaps) > 0 {
+				log.Printf("[collector]    ↳ gaps horarios: %s", formatGaps(r.Gaps))
+				hasWarn = true
+			}
+			if hasWarn {
 				warn++
 			} else {
 				ok++
@@ -418,6 +442,7 @@ func (c *Collector) syncStation(ctx context.Context, task syncTask) syncResult {
 		}
 	}
 	res.ZeroSignals = detectZeroSignals(batch, sidElement)
+	res.Gaps = detectTimeGaps(batch, lastTS)
 
 	if err := c.valorRepo.UpsertBatch(ctx, batch); err != nil {
 		res.Status = statusWriteError
@@ -430,6 +455,67 @@ func (c *Collector) syncStation(ctx context.Context, task syncTask) syncResult {
 	res.ValuesWritten = len(batch)
 	res.Elapsed = time.Since(start)
 	return res
+}
+
+// detectTimeGaps finds stretches of missing hourly records in a batch.
+// All signals in a task share the same timestamps (same circular-buffer records),
+// so we deduplicate timestamps and check consecutive 1-hour differences.
+// lastTS is the last timestamp stored before this sync (zero if no history).
+func detectTimeGaps(batch []models.RocValor, lastTS time.Time) []gapInfo {
+	seen := make(map[time.Time]struct{})
+	for _, v := range batch {
+		seen[v.Fecha.UTC().Truncate(time.Hour)] = struct{}{}
+	}
+	times := make([]time.Time, 0, len(seen))
+	for t := range seen {
+		times = append(times, t)
+	}
+	sort.Slice(times, func(i, j int) bool { return times[i].Before(times[j]) })
+
+	if len(times) == 0 {
+		return nil
+	}
+
+	var gaps []gapInfo
+
+	// Gap between the last stored record and the first new one.
+	if !lastTS.IsZero() {
+		prev := lastTS.UTC().Truncate(time.Hour)
+		missing := int(times[0].Sub(prev).Hours()) - 1
+		if missing > 0 {
+			gaps = append(gaps, gapInfo{From: prev, To: times[0], Hours: missing})
+		}
+	}
+
+	// Internal gaps within the batch.
+	for i := 1; i < len(times); i++ {
+		missing := int(times[i].Sub(times[i-1]).Hours()) - 1
+		if missing > 0 {
+			gaps = append(gaps, gapInfo{From: times[i-1], To: times[i], Hours: missing})
+		}
+	}
+
+	return gaps
+}
+
+// formatGaps renders up to 3 gaps as a compact string, with a count of extras.
+func formatGaps(gaps []gapInfo) string {
+	const maxShown = 3
+	shown := gaps
+	extra := 0
+	if len(shown) > maxShown {
+		shown = shown[:maxShown]
+		extra = len(gaps) - maxShown
+	}
+	parts := make([]string, len(shown))
+	for i, g := range shown {
+		parts[i] = g.String()
+	}
+	s := strings.Join(parts, ", ")
+	if extra > 0 {
+		s += fmt.Sprintf(" (+%d más)", extra)
+	}
+	return s
 }
 
 // detectZeroSignals returns element names for signals whose every value in the
