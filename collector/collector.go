@@ -202,11 +202,15 @@ func (g gapInfo) String() string {
 
 type syncResult struct {
 	Task           string
+	Addr           string        // "ip:port" — shown on error lines
 	Status         syncStatus
 	RecordsFetched int
 	ValuesWritten  int
-	ZeroSignals    []string  // element names whose entire batch was zero
-	Gaps           []gapInfo // hourly gaps (> 1 h) detected in the written batch
+	MinFecha       time.Time  // earliest timestamp written in this batch
+	MaxFecha       time.Time  // latest timestamp written in this batch
+	LastTS         time.Time  // last stored timestamp before this sync (for upToDate lines)
+	ZeroSignals    []string   // element names whose entire batch was zero
+	Gaps           []gapInfo  // hourly gaps (> 1 h) detected in the written batch
 	Elapsed        time.Duration
 	Err            error
 }
@@ -257,43 +261,82 @@ func (c *Collector) SyncAll(ctx context.Context) {
 	wg.Wait()
 
 	// ── summary table ────────────────────────────────────────────────────────
-	log.Printf("[collector] ── resumen sync ──────────────────────────────────")
+	const sep = "  ────────────────────────────────────────────────────────────────────────────────"
+	log.Printf("[collector] %s", sep)
+	log.Printf("[collector]   %-28s  %5s  %6s  %-23s  %5s  %s",
+		"TAREA", "PTRS", "VALS", "RANGO", "T(s)", "ALERTAS")
+	log.Printf("[collector] %s", sep)
+
 	ok, warn, fail := 0, 0, 0
+	totalVals := 0
+	var totalElapsed time.Duration
+
 	for _, r := range results {
+		totalElapsed += r.Elapsed
+		alerts := buildAlerts(r)
+
 		switch r.Status {
 		case statusOK:
-			log.Printf("[collector]  ✓ %-30s %4d registros  %5d valores  %.1fs",
-				r.Task, r.RecordsFetched, r.ValuesWritten, r.Elapsed.Seconds())
-			hasWarn := false
-			if len(r.ZeroSignals) > 0 {
-				log.Printf("[collector]    ↳ señales 100%% cero: %v", r.ZeroSignals)
-				hasWarn = true
+			rng := "—"
+			if !r.MinFecha.IsZero() {
+				rng = fmt.Sprintf("%s→%s",
+					r.MinFecha.UTC().Format("2006-01-02"),
+					r.MaxFecha.UTC().Format("2006-01-02"))
 			}
-			if len(r.Gaps) > 0 {
-				log.Printf("[collector]    ↳ gaps horarios: %s", formatGaps(r.Gaps))
-				hasWarn = true
-			}
-			if hasWarn {
+			log.Printf("[collector]   %-28s  %5d  %6d  %-23s  %5.1f  %s",
+				r.Task, r.RecordsFetched, r.ValuesWritten, rng, r.Elapsed.Seconds(), alerts)
+			totalVals += r.ValuesWritten
+			if alerts != "" {
+				if len(r.ZeroSignals) > 0 {
+					total := len(r.ZeroSignals) + countNonZero(r.ZeroSignals, r.ValuesWritten, r.RecordsFetched)
+					log.Printf("[collector]     zeros (%d/%d): %s",
+						len(r.ZeroSignals), total, strings.Join(r.ZeroSignals, " "))
+				}
+				if len(r.Gaps) > 0 {
+					totalH := 0
+					for _, g := range r.Gaps {
+						totalH += g.Hours
+					}
+					log.Printf("[collector]     gaps  (%d tramos, %dh): %s",
+						len(r.Gaps), totalH, formatGaps(r.Gaps))
+				}
 				warn++
 			} else {
 				ok++
 			}
 		case statusUpToDate:
-			log.Printf("[collector]  · %-30s al día", r.Task)
+			last := "—"
+			if !r.LastTS.IsZero() {
+				last = "al día " + r.LastTS.UTC().Format("2006-01-02T15Z")
+			}
+			log.Printf("[collector]   %-28s  %5s  %6s  %-23s  %5.1f",
+				r.Task, "—", "—", last, r.Elapsed.Seconds())
 			ok++
 		case statusConnFailed, statusPtrFailed, statusWriteError:
-			log.Printf("[collector]  ✗ %-30s [%s] %v", r.Task, r.Status, r.Err)
+			errShort := fmt.Sprintf("%v", r.Err)
+			if len(errShort) > 45 {
+				errShort = errShort[:45] + "…"
+			}
+			log.Printf("[collector]   %-28s  %5s  %6s  %-23s  %5.1f  [%s] %s",
+				r.Task, "ERR", "—", r.Addr, r.Elapsed.Seconds(), r.Status, errShort)
 			fail++
 		}
 	}
-	log.Printf("[collector] ── OK:%d  WARN:%d  ERROR:%d ─────────────────────", ok, warn, fail)
+
+	log.Printf("[collector] %s", sep)
+	log.Printf("[collector]   %d tareas  OK:%d  WARN:%d  ERR:%d  |  %d vals escritos  |  %.1fs total",
+		len(results), ok, warn, fail, totalVals, totalElapsed.Seconds())
+	log.Printf("[collector] %s", sep)
 }
 
 // ─── syncStation ─────────────────────────────────────────────────────────────
 
 func (c *Collector) syncStation(ctx context.Context, task syncTask) syncResult {
 	start := time.Now()
-	res := syncResult{Task: task.Key}
+	res := syncResult{
+		Task: task.Key,
+		Addr: fmt.Sprintf("%s:%d", task.IP, task.Port),
+	}
 
 	// Determine the last stored timestamp for this task using the first valid signal.
 	var lastTS time.Time
@@ -314,6 +357,7 @@ func (c *Collector) syncStation(ctx context.Context, task syncTask) syncResult {
 		}
 		break
 	}
+	res.LastTS = lastTS
 
 	// Connect to the ROC device.
 	client := modbus.NewModbusClient(task.IP, task.Port, task.UnitID, task.DBEndian)
@@ -374,6 +418,7 @@ func (c *Collector) syncStation(ctx context.Context, task syncTask) syncResult {
 		return res
 	}
 
+
 	// Fetch records and build the batch.
 	polledAt := time.Now()
 	var batch []models.RocValor
@@ -432,6 +477,19 @@ func (c *Collector) syncStation(ctx context.Context, task syncTask) syncResult {
 		res.Elapsed = time.Since(start)
 		return res
 	}
+
+	// Compute date range of the batch.
+	minF, maxF := batch[0].Fecha, batch[0].Fecha
+	for _, v := range batch[1:] {
+		if v.Fecha.Before(minF) {
+			minF = v.Fecha
+		}
+		if v.Fecha.After(maxF) {
+			maxF = v.Fecha
+		}
+	}
+	res.MinFecha = minF
+	res.MaxFecha = maxF
 
 	// Build senal_id → element name for zero-detection reporting.
 	sidElement := make(map[float64]string, len(task.Signals))
@@ -516,6 +574,35 @@ func formatGaps(gaps []gapInfo) string {
 		s += fmt.Sprintf(" (+%d más)", extra)
 	}
 	return s
+}
+
+// buildAlerts returns a compact one-line alert summary for a result row.
+// Empty string means no issues.
+func buildAlerts(r syncResult) string {
+	var parts []string
+	if len(r.ZeroSignals) > 0 {
+		total := len(r.ZeroSignals) + countNonZero(r.ZeroSignals, r.ValuesWritten, r.RecordsFetched)
+		parts = append(parts, fmt.Sprintf("zeros:%d/%d", len(r.ZeroSignals), total))
+	}
+	if len(r.Gaps) > 0 {
+		totalH := 0
+		for _, g := range r.Gaps {
+			totalH += g.Hours
+		}
+		parts = append(parts, fmt.Sprintf("gaps:%d(%dh)", len(r.Gaps), totalH))
+	}
+	return strings.Join(parts, " ")
+}
+
+// countNonZero returns the number of signals NOT in the zero list.
+// zeroNames is the zero list; valuesWritten / recordsFetched is used to estimate
+// total signal count when a direct count is unavailable.
+func countNonZero(zeroNames []string, valuesWritten, recordsFetched int) int {
+	if recordsFetched == 0 {
+		return 0
+	}
+	totalSignals := valuesWritten / recordsFetched
+	return totalSignals - len(zeroNames)
 }
 
 // detectZeroSignals returns element names for signals whose every value in the
