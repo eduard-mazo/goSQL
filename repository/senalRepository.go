@@ -9,11 +9,37 @@ import (
 	"goSQL/models"
 )
 
+// SenalRepository opera sobre ROC_SENALES (catálogo — seed + lectura).
+type SenalRepository struct {
+	db *db.DB
+}
+
+func NewSenalRepository(database *db.DB) *SenalRepository {
+	return &SenalRepository{db: database}
+}
+
+// ── helpers ──────────────────────────────────────────────────────────────────
+
+func senalesTable(d db.Dialect) string {
+	if d == db.DialectSQLite {
+		return "ROC_SENALES"
+	}
+	return "HEPMGA.ROC_SENALES"
+}
+
+func nullStrToPtr(n sql.NullString) *string {
+	if !n.Valid {
+		return nil
+	}
+	return &n.String
+}
+
+// ── bootstrap (EnsureSignals) ─────────────────────────────────────────────────
+
 // FindAllMap loads every ROC_SENALES row and returns a lookup map.
 // Key = "B1|B2|B3|ELEMENT" → SENAL_ID. NULL columns are treated as "".
-// Used by collector.EnsureSignals for an efficient single-query bootstrap.
 func (r *SenalRepository) FindAllMap(ctx context.Context) (map[string]float64, error) {
-	const q = `SELECT SENAL_ID, B1, B2, B3, ELEMENT FROM HEPMGA.ROC_SENALES`
+	q := `SELECT SENAL_ID, B1, B2, B3, ELEMENT FROM ` + senalesTable(r.db.Dialect)
 	rows, err := r.db.QueryContext(ctx, q)
 	if err != nil {
 		return nil, fmt.Errorf("SenalRepo.FindAllMap: %w", err)
@@ -33,58 +59,38 @@ func (r *SenalRepository) FindAllMap(ctx context.Context) (map[string]float64, e
 	return m, rows.Err()
 }
 
-// FindByKeys finds a signal by its B1 (station), B2 (meter, empty if none), B3 (signal name).
-// Returns nil if not found.
-func (r *SenalRepository) FindByKeys(ctx context.Context, b1, b2, b3 string) (*models.RocSenal, error) {
-	var row *sql.Row
-	if b2 == "" {
-		const q = `SELECT SENAL_ID, B1, B2, B3, ELEMENT, UNIDADES, CREATED, ACTIVO
-		           FROM HEPMGA.ROC_SENALES
-		           WHERE B1 = :b1 AND B2 IS NULL AND B3 = :b3`
-		row = r.db.QueryRowContext(ctx, q, sql.Named("b1", b1), sql.Named("b3", b3))
-	} else {
-		const q = `SELECT SENAL_ID, B1, B2, B3, ELEMENT, UNIDADES, CREATED, ACTIVO
-		           FROM HEPMGA.ROC_SENALES
-		           WHERE B1 = :b1 AND B2 = :b2 AND B3 = :b3`
-		row = r.db.QueryRowContext(ctx, q, sql.Named("b1", b1), sql.Named("b2", b2), sql.Named("b3", b3))
-	}
-
-	var s models.RocSenal
-	var b1v, b2v, b3v, element, unidades sql.NullString
-	err := row.Scan(&s.SenalID, &b1v, &b2v, &b3v, &element, &unidades, &s.Created, &s.Activo)
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, fmt.Errorf("SenalRepo.FindByKeys: %w", err)
-	}
-	s.B1 = nullStrToPtr(b1v)
-	s.B2 = nullStrToPtr(b2v)
-	s.B3 = nullStrToPtr(b3v)
-	s.Element = nullStrToPtr(element)
-	s.Unidades = nullStrToPtr(unidades)
-	return &s, nil
-}
-
-// NextID returns NVL(MAX(SENAL_ID), 0) + 1 from ROC_SENALES.
+// NextID returns MAX(SENAL_ID) + 1 (or 1 when the table is empty).
 // Not safe for concurrent callers — use only during single-threaded seeding.
 func (r *SenalRepository) NextID(ctx context.Context) (float64, error) {
+	var q string
+	if r.db.Dialect == db.DialectSQLite {
+		q = `SELECT COALESCE(MAX(SENAL_ID), 0) + 1 FROM ROC_SENALES`
+	} else {
+		q = `SELECT NVL(MAX(SENAL_ID), 0) + 1 FROM HEPMGA.ROC_SENALES`
+	}
 	var next float64
-	err := r.db.QueryRowContext(ctx,
-		`SELECT NVL(MAX(SENAL_ID), 0) + 1 FROM HEPMGA.ROC_SENALES`,
-	).Scan(&next)
-	if err != nil {
+	if err := r.db.QueryRowContext(ctx, q).Scan(&next); err != nil {
 		return 0, fmt.Errorf("SenalRepo.NextID: %w", err)
 	}
 	return next, nil
 }
 
 // Insert inserts a new signal row with an explicit SENAL_ID.
-// CREATED is set by Oracle's DEFAULT SYSTIMESTAMP.
+// CREATED is set by the DEFAULT expression on both Oracle and SQLite.
 func (r *SenalRepository) Insert(ctx context.Context, s models.RocSenal) error {
+	if r.db.Dialect == db.DialectSQLite {
+		const q = `INSERT INTO ROC_SENALES (SENAL_ID, B1, B2, B3, ELEMENT, UNIDADES, ACTIVO)
+		           VALUES (?, ?, ?, ?, ?, ?, ?)`
+		if _, err := r.db.ExecContext(ctx, q,
+			s.SenalID, s.B1, s.B2, s.B3, s.Element, s.Unidades, s.Activo,
+		); err != nil {
+			return fmt.Errorf("SenalRepo.Insert: %w", err)
+		}
+		return nil
+	}
 	const q = `INSERT INTO HEPMGA.ROC_SENALES (SENAL_ID, B1, B2, B3, ELEMENT, UNIDADES, ACTIVO)
 	           VALUES (:senal_id, :b1, :b2, :b3, :element, :unidades, :activo)`
-	_, err := r.db.ExecContext(ctx, q,
+	if _, err := r.db.ExecContext(ctx, q,
 		sql.Named("senal_id", s.SenalID),
 		sql.Named("b1", s.B1),
 		sql.Named("b2", s.B2),
@@ -92,115 +98,125 @@ func (r *SenalRepository) Insert(ctx context.Context, s models.RocSenal) error {
 		sql.Named("element", s.Element),
 		sql.Named("unidades", s.Unidades),
 		sql.Named("activo", s.Activo),
-	)
-	if err != nil {
+	); err != nil {
 		return fmt.Errorf("SenalRepo.Insert: %w", err)
 	}
 	return nil
 }
 
-// SenalRepository opera sobre HEPMGA.ROC_SENALES (catálogo — solo lectura).
-type SenalRepository struct {
-	db *db.DB
-}
+// ── reads ─────────────────────────────────────────────────────────────────────
 
-func NewSenalRepository(database *db.DB) *SenalRepository {
-	return &SenalRepository{db: database}
-}
-
-// FindAll devuelve todas las señales activas ordenadas por SENAL_ID.
+// FindAll returns all signals ordered by SENAL_ID.
 func (r *SenalRepository) FindAll(ctx context.Context) ([]models.RocSenal, error) {
-	const q = `
-		SELECT SENAL_ID, B1, B2, B3, ELEMENT, UNIDADES, CREATED, ACTIVO
-		FROM   HEPMGA.ROC_SENALES
-		ORDER  BY SENAL_ID ASC`
-
+	q := `SELECT SENAL_ID, B1, B2, B3, ELEMENT, UNIDADES, CREATED, ACTIVO
+	      FROM ` + senalesTable(r.db.Dialect) + `
+	      ORDER BY SENAL_ID ASC`
 	rows, err := r.db.QueryContext(ctx, q)
 	if err != nil {
 		return nil, fmt.Errorf("SenalRepo.FindAll: %w", err)
 	}
 	defer rows.Close()
-
 	return scanSenales(rows)
 }
 
-// FindActivas devuelve solo las señales con ACTIVO = 'S'.
+// FindActivas returns only signals where ACTIVO = 'S'.
 func (r *SenalRepository) FindActivas(ctx context.Context) ([]models.RocSenal, error) {
-	const q = `
-		SELECT SENAL_ID, B1, B2, B3, ELEMENT, UNIDADES, CREATED, ACTIVO
-		FROM   HEPMGA.ROC_SENALES
-		WHERE  ACTIVO = 'S'
-		ORDER  BY SENAL_ID ASC`
-
+	q := `SELECT SENAL_ID, B1, B2, B3, ELEMENT, UNIDADES, CREATED, ACTIVO
+	      FROM ` + senalesTable(r.db.Dialect) + `
+	      WHERE ACTIVO = 'S'
+	      ORDER BY SENAL_ID ASC`
 	rows, err := r.db.QueryContext(ctx, q)
 	if err != nil {
 		return nil, fmt.Errorf("SenalRepo.FindActivas: %w", err)
 	}
 	defer rows.Close()
-
 	return scanSenales(rows)
 }
 
-// FindByID devuelve una señal por su SENAL_ID. Retorna nil si no existe.
+// FindByID returns a signal by its SENAL_ID, or nil if not found.
 func (r *SenalRepository) FindByID(ctx context.Context, senalID float64) (*models.RocSenal, error) {
-	const q = `
-		SELECT SENAL_ID, B1, B2, B3, ELEMENT, UNIDADES, CREATED, ACTIVO
-		FROM   HEPMGA.ROC_SENALES
-		WHERE  SENAL_ID = :senal_id`
+	var row *sql.Row
+	if r.db.Dialect == db.DialectSQLite {
+		row = r.db.QueryRowContext(ctx,
+			`SELECT SENAL_ID, B1, B2, B3, ELEMENT, UNIDADES, CREATED, ACTIVO
+			 FROM ROC_SENALES WHERE SENAL_ID = ?`, senalID)
+	} else {
+		row = r.db.QueryRowContext(ctx,
+			`SELECT SENAL_ID, B1, B2, B3, ELEMENT, UNIDADES, CREATED, ACTIVO
+			 FROM HEPMGA.ROC_SENALES WHERE SENAL_ID = :senal_id`,
+			sql.Named("senal_id", senalID))
+	}
+	return scanOneSenal(row)
+}
 
-	row := r.db.QueryRowContext(ctx, q, sql.Named("senal_id", senalID))
+// FindByKeys finds a signal by B1, B2, B3. Returns nil if not found.
+func (r *SenalRepository) FindByKeys(ctx context.Context, b1, b2, b3 string) (*models.RocSenal, error) {
+	tbl := senalesTable(r.db.Dialect)
+	var row *sql.Row
 
+	if r.db.Dialect == db.DialectSQLite {
+		if b2 == "" {
+			row = r.db.QueryRowContext(ctx,
+				`SELECT SENAL_ID, B1, B2, B3, ELEMENT, UNIDADES, CREATED, ACTIVO
+				 FROM `+tbl+` WHERE B1 = ? AND B2 IS NULL AND B3 = ?`, b1, b3)
+		} else {
+			row = r.db.QueryRowContext(ctx,
+				`SELECT SENAL_ID, B1, B2, B3, ELEMENT, UNIDADES, CREATED, ACTIVO
+				 FROM `+tbl+` WHERE B1 = ? AND B2 = ? AND B3 = ?`, b1, b2, b3)
+		}
+	} else {
+		if b2 == "" {
+			row = r.db.QueryRowContext(ctx,
+				`SELECT SENAL_ID, B1, B2, B3, ELEMENT, UNIDADES, CREATED, ACTIVO
+				 FROM `+tbl+` WHERE B1 = :b1 AND B2 IS NULL AND B3 = :b3`,
+				sql.Named("b1", b1), sql.Named("b3", b3))
+		} else {
+			row = r.db.QueryRowContext(ctx,
+				`SELECT SENAL_ID, B1, B2, B3, ELEMENT, UNIDADES, CREATED, ACTIVO
+				 FROM `+tbl+` WHERE B1 = :b1 AND B2 = :b2 AND B3 = :b3`,
+				sql.Named("b1", b1), sql.Named("b2", b2), sql.Named("b3", b3))
+		}
+	}
+	return scanOneSenal(row)
+}
+
+// ── scan helpers ──────────────────────────────────────────────────────────────
+
+func scanOneSenal(row *sql.Row) (*models.RocSenal, error) {
 	var s models.RocSenal
 	var b1, b2, b3, element, unidades sql.NullString
-
 	err := row.Scan(&s.SenalID, &b1, &b2, &b3, &element, &unidades, &s.Created, &s.Activo)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
 	if err != nil {
-		return nil, fmt.Errorf("SenalRepo.FindByID: %w", err)
+		return nil, fmt.Errorf("SenalRepo scan: %w", err)
 	}
-
 	s.B1 = nullStrToPtr(b1)
 	s.B2 = nullStrToPtr(b2)
 	s.B3 = nullStrToPtr(b3)
 	s.Element = nullStrToPtr(element)
 	s.Unidades = nullStrToPtr(unidades)
-
 	return &s, nil
 }
 
-// ── helpers ──────────────────────────────────────────────────────────────────
-
 func scanSenales(rows *sql.Rows) ([]models.RocSenal, error) {
 	var result []models.RocSenal
-
 	for rows.Next() {
 		var s models.RocSenal
 		var b1, b2, b3, element, unidades sql.NullString
-
 		if err := rows.Scan(
 			&s.SenalID, &b1, &b2, &b3,
 			&element, &unidades, &s.Created, &s.Activo,
 		); err != nil {
 			return nil, fmt.Errorf("SenalRepo scan: %w", err)
 		}
-
 		s.B1 = nullStrToPtr(b1)
 		s.B2 = nullStrToPtr(b2)
 		s.B3 = nullStrToPtr(b3)
 		s.Element = nullStrToPtr(element)
 		s.Unidades = nullStrToPtr(unidades)
-
 		result = append(result, s)
 	}
-
 	return result, rows.Err()
-}
-
-func nullStrToPtr(n sql.NullString) *string {
-	if !n.Valid {
-		return nil
-	}
-	return &n.String
 }

@@ -1,7 +1,6 @@
 # ──────────────────────────────────────────────────────────────────────────────
 #  roc-valores — Makefile
-#  Módulo Go: goSQL  |  Driver: sijms/go-ora (sin CGO)
-#  Ejecutar desde terminal MSYS2 (--login -i) para que el entorno Go esté completo.
+#  Módulo Go: goSQL  |  Drivers: sijms/go-ora (Oracle) + modernc/sqlite (SQLite)
 # ──────────────────────────────────────────────────────────────────────────────
 
 # ── variables ─────────────────────────────────────────────────────────────────
@@ -23,19 +22,23 @@ VERSION  := $(shell git describe --tags --always --dirty 2>/dev/null || echo dev
 COMMIT   := $(shell git rev-parse --short HEAD 2>/dev/null || echo unknown)
 BUILD_TS := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo unknown)
 
-# Flags de compilación: binario standalone, sin información de debug innecesaria
 LDFLAGS  := -s -w \
             -X main.version=$(VERSION) \
             -X main.commit=$(COMMIT) \
             -X main.buildTime=$(BUILD_TS)
 
-# Paquetes Go del proyecto (excluye vendor si existiera)
 PKGS     := $(shell go list ./... 2>/dev/null)
+
+# SQLite database path used by the sqlite-* targets (override as needed)
+SQLITE_DB ?= ./roc.db
 
 # ── targets por defecto ───────────────────────────────────────────────────────
 .DEFAULT_GOAL := help
 
-.PHONY: all build build-race run run-senales run-valores run-insertar run-batch \
+.PHONY: all build build-race \
+        run seed sync \
+        run-sqlite seed-sqlite sync-sqlite \
+        dev \
         test test-verbose test-race test-cover \
         vet fmt fmt-check lint staticcheck check \
         tidy deps deps-list \
@@ -59,31 +62,37 @@ build-race:
 	@mkdir -p $(BUILD_DIR)
 	go build -race -ldflags "$(LDFLAGS)" -o $(TARGET) $(MAIN)
 
-# ── run ───────────────────────────────────────────────────────────────────────
+# ── run (Oracle) ──────────────────────────────────────────────────────────────
 
-## run: ejecuta el binario compilado (subcomando 'senales' por defecto)
+## run: daemon Oracle — seed + sync cada hora en :05
 run: build
-	$(TARGET) senales
+	$(TARGET) run
 
-## run-senales: consulta y muestra señales activas
-run-senales: build
-	$(TARGET) senales
+## seed: inserta señales faltantes en Oracle ROC_SENALES y termina
+seed: build
+	$(TARGET) seed
 
-## run-valores: muestra los últimos 10 valores
-run-valores: build
-	$(TARGET) valores
+## sync: seed + un ciclo delta-sync en Oracle y termina
+sync: build
+	$(TARGET) sync
 
-## run-insertar: inserta un valor de prueba
-run-insertar: build
-	$(TARGET) insertar
+# ── run (SQLite) ──────────────────────────────────────────────────────────────
 
-## run-batch: inserta un lote de valores de prueba
-run-batch: build
-	$(TARGET) batch
+## run-sqlite: daemon SQLite (SQLITE_DB=./roc.db) — seed + sync cada hora en :05
+run-sqlite: build
+	$(TARGET) --sqlite $(SQLITE_DB) run
 
-## dev: compila y corre sin generar binario en disco
+## seed-sqlite: inserta señales faltantes en SQLite y termina
+seed-sqlite: build
+	$(TARGET) --sqlite $(SQLITE_DB) seed
+
+## sync-sqlite: seed + un ciclo delta-sync en SQLite y termina
+sync-sqlite: build
+	$(TARGET) --sqlite $(SQLITE_DB) sync
+
+## dev: compila y corre sin generar binario (Oracle, subcomando run)
 dev:
-	go run $(MAIN) senales
+	go run $(MAIN) run
 
 # ── test ──────────────────────────────────────────────────────────────────────
 
@@ -134,16 +143,14 @@ fmt-check:
 lint:
 	@echo "==> lint"
 	@command -v golangci-lint >/dev/null 2>&1 || \
-		{ echo "  SKIP: golangci-lint no instalado. Instalar con:"; \
-		  echo "  go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest"; exit 0; }
+		{ echo "  SKIP: golangci-lint no instalado."; exit 0; }
 	golangci-lint run ./...
 
 ## staticcheck: análisis avanzado (instalar: go install honnef.co/go/tools/cmd/staticcheck@latest)
 staticcheck:
 	@echo "==> staticcheck"
 	@command -v staticcheck >/dev/null 2>&1 || \
-		{ echo "  SKIP: staticcheck no instalado. Instalar con:"; \
-		  echo "  go install honnef.co/go/tools/cmd/staticcheck@latest"; exit 0; }
+		{ echo "  SKIP: staticcheck no instalado."; exit 0; }
 	staticcheck $(PKGS)
 
 ## check: suite completa — fmt-check + vet + test
@@ -168,7 +175,7 @@ deps-list:
 
 # ── limpieza ──────────────────────────────────────────────────────────────────
 
-## clean: elimina binarios y artefactos de cobertura
+## clean: elimina binarios, artefactos de cobertura y la base SQLite local
 clean:
 	@echo "==> clean"
 	@rm -rf $(BUILD_DIR) cover.out cover.html
@@ -185,4 +192,6 @@ help:
 	@grep -E '^## ' $(MAKEFILE_LIST) | \
 		sed 's/## //' | \
 		awk -F: '{printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "  Override SQLite path:  make run-sqlite SQLITE_DB=/path/to/file.db"
 	@echo ""

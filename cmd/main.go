@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"os"
 	"os/signal"
@@ -20,19 +21,41 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Printf("roc-collector  version=%s commit=%s built=%s", version, commit, buildTime)
 
-	cfg, err := config.Load()
-	if err != nil {
-		log.Fatalf("config: %v", err)
+	// ── flags ────────────────────────────────────────────────────────────────
+	fs := flag.NewFlagSet("roc-valores", flag.ExitOnError)
+	sqlitePath := fs.String("sqlite", "", "use SQLite at `path` instead of Oracle (creates DB if absent)")
+	if err := fs.Parse(os.Args[1:]); err != nil {
+		log.Fatalf("flags: %v", err)
+	}
+	args := fs.Args() // remaining positional args after flags
+
+	cmd := "run"
+	if len(args) > 0 {
+		cmd = args[0]
 	}
 
-	database, err := db.New(cfg)
-	if err != nil {
-		log.Fatalf("db: %v", err)
+	// ── database ─────────────────────────────────────────────────────────────
+	var database *db.DB
+
+	if *sqlitePath != "" {
+		var err error
+		database, err = db.NewSQLite(*sqlitePath)
+		if err != nil {
+			log.Fatalf("sqlite: %v", err)
+		}
+	} else {
+		cfg, err := config.Load()
+		if err != nil {
+			log.Fatalf("config: %v", err)
+		}
+		database, err = db.New(cfg)
+		if err != nil {
+			log.Fatalf("db: %v", err)
+		}
 	}
 	defer database.Close()
 
 	ctx := context.Background()
-
 	if err := database.HealthCheck(ctx); err != nil {
 		log.Fatalf("healthcheck: %v", err)
 	}
@@ -42,21 +65,15 @@ func main() {
 		log.Fatalf("collector: %v", err)
 	}
 
-	cmd := "run"
-	if len(os.Args) > 1 {
-		cmd = os.Args[1]
-	}
-
+	// ── subcommands ──────────────────────────────────────────────────────────
 	switch cmd {
 	case "seed":
-		// Insert missing signals into ROC_SENALES and print the mapping.
 		if err := c.EnsureSignals(ctx); err != nil {
 			log.Fatalf("seed: %v", err)
 		}
 		log.Println("seed completado")
 
 	case "sync":
-		// Seed then run one sync cycle and exit.
 		if err := c.EnsureSignals(ctx); err != nil {
 			log.Fatalf("EnsureSignals: %v", err)
 		}
@@ -74,7 +91,6 @@ func main() {
 func runDaemon(ctx context.Context, c *collector.Collector) {
 	log.Println("[main] daemon iniciado — sync cada hora en :05")
 
-	// Sync immediately on startup.
 	c.SyncAll(ctx)
 
 	quit := make(chan os.Signal, 1)
@@ -95,8 +111,7 @@ func runDaemon(ctx context.Context, c *collector.Collector) {
 	}
 }
 
-// nextSyncTime returns the next :05 mark — current hour's :05 if not yet passed,
-// otherwise next hour's :05.
+// nextSyncTime returns the next :05 mark.
 func nextSyncTime() time.Time {
 	now := time.Now()
 	candidate := time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), 5, 0, 0, now.Location())
