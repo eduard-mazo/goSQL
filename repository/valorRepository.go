@@ -204,6 +204,33 @@ func (r *ValorRepository) MaxFechaBySenalID(ctx context.Context, senalID float64
 	return n.Time, true, nil
 }
 
+// FindBySenalIDFrom returns values for a signal with FECHA strictly after `after`,
+// ordered by FECHA ascending. Used for incremental SQLite → Oracle push.
+func (r *ValorRepository) FindBySenalIDFrom(ctx context.Context, senalID float64, after time.Time) ([]models.RocValor, error) {
+	tbl := valoresTable(r.db.Dialect)
+	var (
+		rows *sql.Rows
+		err  error
+	)
+	if r.db.Dialect == db.DialectSQLite {
+		rows, err = r.db.QueryContext(ctx,
+			`SELECT FECHA, SYNCED_AT, SENAL_ID, VALOR FROM `+tbl+
+				` WHERE SENAL_ID = ? AND FECHA > ? ORDER BY FECHA ASC`,
+			senalID, after.UTC().Format(time.RFC3339))
+	} else {
+		rows, err = r.db.QueryContext(ctx,
+			`SELECT FECHA, SYNCED_AT, SENAL_ID, VALOR FROM `+tbl+
+				` WHERE SENAL_ID = :senal_id AND FECHA > :after ORDER BY FECHA ASC`,
+			sql.Named("senal_id", senalID),
+			sql.Named("after", after))
+	}
+	if err != nil {
+		return nil, fmt.Errorf("ValorRepo.FindBySenalIDFrom: %w", err)
+	}
+	defer rows.Close()
+	return r.scanValores(rows)
+}
+
 // FindBySenalID returns all values for a signal, most recent first.
 func (r *ValorRepository) FindBySenalID(ctx context.Context, senalID float64) ([]models.RocValor, error) {
 	tbl := valoresTable(r.db.Dialect)

@@ -37,7 +37,7 @@ SQLITE_DB ?= ./roc.db
 
 .PHONY: all build build-race \
         run seed sync \
-        run-sqlite seed-sqlite sync-sqlite \
+        run-sqlite seed-sqlite sync-sqlite push-to-oracle \
         dev \
         test test-verbose test-race test-cover \
         vet fmt fmt-check lint staticcheck check \
@@ -89,6 +89,10 @@ seed-sqlite: build
 ## sync-sqlite: seed + un ciclo delta-sync en SQLite y termina
 sync-sqlite: build
 	$(TARGET) --sqlite $(SQLITE_DB) sync
+
+## push-to-oracle: empuja datos de SQLite (SQLITE_DB) a Oracle (requiere .env)
+push-to-oracle: build
+	$(TARGET) --sqlite $(SQLITE_DB) push
 
 ## dev: compila y corre sin generar binario (Oracle, subcomando run)
 dev:
