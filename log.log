@@ -1,8 +1,117 @@
 PS C:\Users\emazoq\Documents\0dev\goSQL> .\roc-valores.exe --sqlite .\roc-valores.db push
-2026/04/13 15:31:15 main.go:22: roc-collector  version=d4b19df-dirty commit=d4b19df built=2026-04-13T20:03:10Z
-2026/04/13 15:31:15 db.go:60: [db] abriendo SQLite → .\roc-valores.db
-2026/04/13 15:31:15 db.go:76: [db] ✓ SQLite abierto y migrado
-2026/04/13 15:31:15 config.go:48: [config] DSN construido → oracle://USRWEBEPM:****@SGIODB-scan:1526/giodb
-2026/04/13 15:31:15 db.go:33: [db] conectando → SGIODB-scan:1526/giodb (go-ora, sin CGO)
-2026/04/13 15:31:19 db.go:53: [db] ✓ conexión establecida con Oracle
-2026/04/13 15:31:20 main.go:45: push: remap: sqlite FindAll: SenalRepo scan: sql: Scan error on column index 6, name "CREATED": unsupported Scan, storing driver.Value type string into type *time.Time
+2026/04/13 15:46:31 main.go:22: roc-collector  version=a8ee21c-dirty commit=a8ee21c built=2026-04-13T20:44:26Z
+2026/04/13 15:46:31 db.go:60: [db] abriendo SQLite → .\roc-valores.db
+2026/04/13 15:46:31 db.go:76: [db] ✓ SQLite abierto y migrado
+2026/04/13 15:46:31 config.go:48: [config] DSN construido → oracle://USRWEBEPM:****@SGIODB-scan:1526/giodb
+2026/04/13 15:46:31 db.go:33: [db] conectando → SGIODB-scan:1526/giodb (go-ora, sin CGO)
+2026/04/13 15:46:35 db.go:53: [db] ✓ conexión establecida con Oracle
+2026/04/13 15:46:37 push.go:119: [push] nueva señal Oracle ID=1: GTASAJER|MEDICION|BRAZO1|MinQAcum
+2026/04/13 15:46:38 push.go:119: [push] nueva señal Oracle ID=2: GTASAJER|MEDICION|BRAZO1|PulsosH
+2026/04/13 15:46:38 push.go:119: [push] nueva señal Oracle ID=3: GTASAJER|MEDICION|BRAZO1|PPH
+2026/04/13 15:46:39 push.go:119: [push] nueva señal Oracle ID=4: GTASAJER|MEDICION|BRAZO1|TPH
+2026/04/13 15:46:39 push.go:119: [push] nueva señal Oracle ID=5: GTASAJER|MEDICION|BRAZO1|Vmult
+2026/04/13 15:46:40 push.go:119: [push] nueva señal Oracle ID=6: GTASAJER|MEDICION|BRAZO1|VsPH
+2026/04/13 15:46:41 push.go:119: [push] nueva señal Oracle ID=7: GTASAJER|MEDICION|BRAZO1|VaPH
+2026/04/13 15:46:41 push.go:119: [push] nueva señal Oracle ID=8: GTASAJER|MEDICION|BRAZO1|EnaH
+2026/04/13 15:46:42 push.go:119: [push] nueva señal Oracle ID=9: GTASAJER|MEDICION|BRAZO2|MinQAcum
+2026/04/13 15:46:42 push.go:119: [push] nueva señal Oracle ID=10: GTASAJER|MEDICION|BRAZO2|PulsosH
+2026/04/13 15:46:43 push.go:119: [push] nueva señal Oracle ID=11: GTASAJER|MEDICION|BRAZO2|PPH
+2026/04/13 15:46:44 push.go:119: [push] nueva señal Oracle ID=12: GTASAJER|MEDICION|BRAZO2|TPH
+2026/04/13 15:46:44 push.go:119: [push] nueva señal Oracle ID=13: GTASAJER|MEDICION|BRAZO2|Vmult
+2026/04/13 15:46:45 push.go:119: [push] nueva señal Oracle ID=14: GTASAJER|MEDICION|BRAZO2|VsPH
+2026/04/13 15:46:46 push.go:119: [push] nueva señal Oracle ID=15: GTASAJER|MEDICION|BRAZO2|VaPH
+2026/04/13 15:46:46 push.go:119: [push] nueva señal Oracle ID=16: GTASAJER|MEDICION|BRAZO2|EnaH
+2026/04/13 15:46:47 push.go:119: [push] nueva señal Oracle ID=17: GLLCUIVA|DS|BRAZO1|MinQAcum
+2026/04/13 15:46:48 push.go:119: [push] nueva señal Oracle ID=18: GLLCUIVA|DS|BRAZO1|PulsosH
+2026/04/13 15:46:48 push.go:119: [push] nueva señal Oracle ID=19: GLLCUIVA|DS|BRAZO1|PPH
+2026/04/13 15:46:49 push.go:119: [push] nueva señal Oracle ID=20: GLLCUIVA|DS|BRAZO1|TPH
+2026/04/13 15:46:50 push.go:119: [push] nueva señal Oracle ID=21: GLLCUIVA|DS|BRAZO1|Vmult
+2026/04/13 15:46:50 push.go:119: [push] nueva señal Oracle ID=22: GLLCUIVA|DS|BRAZO1|VsPH
+2026/04/13 15:46:51 push.go:119: [push] nueva señal Oracle ID=23: GLLCUIVA|DS|BRAZO1|TasQPH
+2026/04/13 15:46:52 push.go:119: [push] nueva señal Oracle ID=24: GLLCUIVA|DS|BRAZO1|TasEPH
+2026/04/13 15:46:52 push.go:119: [push] nueva señal Oracle ID=25: GYOLOMBO|RINT|BRAZO1|MinQAcum
+2026/04/13 15:46:53 push.go:119: [push] nueva señal Oracle ID=26: GYOLOMBO|RINT|BRAZO1|PulsosH
+2026/04/13 15:46:54 push.go:119: [push] nueva señal Oracle ID=27: GYOLOMBO|RINT|BRAZO1|PPH
+2026/04/13 15:46:54 push.go:119: [push] nueva señal Oracle ID=28: GYOLOMBO|RINT|BRAZO1|TPH
+2026/04/13 15:46:55 push.go:119: [push] nueva señal Oracle ID=29: GYOLOMBO|RINT|BRAZO1|Vmult
+2026/04/13 15:46:55 push.go:119: [push] nueva señal Oracle ID=30: GYOLOMBO|RINT|BRAZO1|VsPH
+2026/04/13 15:46:56 push.go:119: [push] nueva señal Oracle ID=31: GYOLOMBO|RINT|BRAZO1|VaPH
+2026/04/13 15:46:57 push.go:119: [push] nueva señal Oracle ID=32: GYOLOMBO|RINT|BRAZO1|EnaH
+2026/04/13 15:46:57 push.go:119: [push] nueva señal Oracle ID=33: GSTODOMI|RINT|BRAZO1|MinQAcum
+2026/04/13 15:46:58 push.go:119: [push] nueva señal Oracle ID=34: GSTODOMI|RINT|BRAZO1|PulsosH
+2026/04/13 15:46:58 push.go:119: [push] nueva señal Oracle ID=35: GSTODOMI|RINT|BRAZO1|PPH
+2026/04/13 15:46:59 push.go:119: [push] nueva señal Oracle ID=36: GSTODOMI|RINT|BRAZO1|TPH
+2026/04/13 15:47:00 push.go:119: [push] nueva señal Oracle ID=37: GSTODOMI|RINT|BRAZO1|Vmult
+2026/04/13 15:47:00 push.go:119: [push] nueva señal Oracle ID=38: GSTODOMI|RINT|BRAZO1|VsPH
+2026/04/13 15:47:01 push.go:119: [push] nueva señal Oracle ID=39: GSTODOMI|RINT|BRAZO1|VaPH
+2026/04/13 15:47:02 push.go:119: [push] nueva señal Oracle ID=40: GSTODOMI|RINT|BRAZO1|EnaH
+2026/04/13 15:47:02 push.go:119: [push] nueva señal Oracle ID=41: GSANVICE|RINT|BRAZO1|MinQAcum
+2026/04/13 15:47:03 push.go:119: [push] nueva señal Oracle ID=42: GSANVICE|RINT|BRAZO1|PulsosH
+2026/04/13 15:47:03 push.go:119: [push] nueva señal Oracle ID=43: GSANVICE|RINT|BRAZO1|PPH
+2026/04/13 15:47:04 push.go:119: [push] nueva señal Oracle ID=44: GSANVICE|RINT|BRAZO1|TPH
+2026/04/13 15:47:05 push.go:119: [push] nueva señal Oracle ID=45: GSANVICE|RINT|BRAZO1|Vmult
+2026/04/13 15:47:05 push.go:119: [push] nueva señal Oracle ID=46: GSANVICE|RINT|BRAZO1|VsPH
+2026/04/13 15:47:06 push.go:119: [push] nueva señal Oracle ID=47: GSANVICE|RINT|BRAZO1|VaPH
+2026/04/13 15:47:07 push.go:119: [push] nueva señal Oracle ID=48: GSANVICE|RINT|BRAZO1|EnaH
+2026/04/13 15:47:07 push.go:119: [push] nueva señal Oracle ID=49: GGNC|COMPRE1|MEDICION|Vmult
+2026/04/13 15:47:08 push.go:119: [push] nueva señal Oracle ID=50: GGNC|COMPRE1|MEDICION|VsPH
+2026/04/13 15:47:09 push.go:119: [push] nueva señal Oracle ID=51: GGNC|COMPRE1|MEDICION|VaPH
+2026/04/13 15:47:09 push.go:119: [push] nueva señal Oracle ID=52: GGNC|COMPRE1|MEDICION|EnaH
+2026/04/13 15:47:10 push.go:119: [push] nueva señal Oracle ID=53: GGNC|COMPRE2|MEDICION|MinQAcum
+2026/04/13 15:47:11 push.go:119: [push] nueva señal Oracle ID=54: GGNC|COMPRE2|MEDICION|PulsosH
+2026/04/13 15:47:11 push.go:119: [push] nueva señal Oracle ID=55: GGNC|COMPRE2|MEDICION|PPH
+2026/04/13 15:47:12 push.go:119: [push] nueva señal Oracle ID=56: GGNC|COMPRE2|MEDICION|TPH
+2026/04/13 15:47:13 push.go:119: [push] nueva señal Oracle ID=57: GGNC|COMPRE2|MEDICION|Vmult
+2026/04/13 15:47:14 push.go:119: [push] nueva señal Oracle ID=58: GGNC|COMPRE2|MEDICION|VsPH
+2026/04/13 15:47:14 push.go:119: [push] nueva señal Oracle ID=59: GGNC|COMPRE2|MEDICION|VaPH
+2026/04/13 15:47:15 push.go:119: [push] nueva señal Oracle ID=60: GGNC|COMPRE2|MEDICION|EnaH
+2026/04/13 15:47:16 push.go:119: [push] nueva señal Oracle ID=61: GGNC|PRECARGA|MEDICION|MinQAcum
+2026/04/13 15:47:17 push.go:119: [push] nueva señal Oracle ID=62: GGNC|PRECARGA|MEDICION|PPH
+2026/04/13 15:47:17 push.go:119: [push] nueva señal Oracle ID=63: GGNC|PRECARGA|MEDICION|TPH
+2026/04/13 15:47:18 push.go:119: [push] nueva señal Oracle ID=64: GGNC|PRECARGA|MEDICION|DensBa
+2026/04/13 15:47:19 push.go:119: [push] nueva señal Oracle ID=65: GGNC|PRECARGA|MEDICION|MasaaH
+2026/04/13 15:47:19 push.go:119: [push] nueva señal Oracle ID=66: GGNC|PRECARGA|MEDICION|VsPH
+2026/04/13 15:47:20 push.go:119: [push] nueva señal Oracle ID=67: GGNC|PRECARGA|MEDICION|VaPH
+2026/04/13 15:47:21 push.go:119: [push] nueva señal Oracle ID=68: GGNC|PRECARGA|MEDICION|EnaH
+2026/04/13 15:47:21 push.go:119: [push] nueva señal Oracle ID=69: GGNC|ENTRADA|MEDICION|MinQAcum
+2026/04/13 15:47:22 push.go:119: [push] nueva señal Oracle ID=70: GGNC|ENTRADA|MEDICION|PulsosH
+2026/04/13 15:47:23 push.go:119: [push] nueva señal Oracle ID=71: GGNC|ENTRADA|MEDICION|PPH
+2026/04/13 15:47:23 push.go:119: [push] nueva señal Oracle ID=72: GGNC|ENTRADA|MEDICION|MasaaH
+2026/04/13 15:47:24 push.go:119: [push] nueva señal Oracle ID=73: GGNC|ENTRADA|MEDICION|VaPH
+2026/04/13 15:47:24 push.go:119: [push] nueva señal Oracle ID=74: GGNC|ENTRADA|MEDICION|EnaH
+2026/04/13 15:47:25 push.go:119: [push] nueva señal Oracle ID=75: GGNC|ENTRADA|MEDICION|KFcPH
+2026/04/13 15:47:26 push.go:119: [push] nueva señal Oracle ID=76: GGNC|ENTRADA|MEDICION|GraEspPH
+2026/04/13 15:47:26 push.go:119: [push] nueva señal Oracle ID=77: GNARE|RINT|BRAZO1|MinQAcum
+2026/04/13 15:47:27 push.go:119: [push] nueva señal Oracle ID=78: GNARE|RINT|BRAZO1|PulsosH
+2026/04/13 15:47:28 push.go:119: [push] nueva señal Oracle ID=79: GNARE|RINT|BRAZO1|PPH
+2026/04/13 15:47:28 push.go:119: [push] nueva señal Oracle ID=80: GNARE|RINT|BRAZO1|TPH
+2026/04/13 15:47:29 push.go:119: [push] nueva señal Oracle ID=81: GNARE|RINT|BRAZO1|Vmult
+2026/04/13 15:47:29 push.go:119: [push] nueva señal Oracle ID=82: GNARE|RINT|BRAZO1|VsPH
+2026/04/13 15:47:30 push.go:119: [push] nueva señal Oracle ID=83: GNARE|RINT|BRAZO1|VaPH
+2026/04/13 15:47:31 push.go:119: [push] nueva señal Oracle ID=84: GNARE|RINT|BRAZO1|EnaH
+2026/04/13 15:47:32 push.go:119: [push] nueva señal Oracle ID=85: GNARE|RINT|ARGOS|MinQAcum
+2026/04/13 15:47:32 push.go:119: [push] nueva señal Oracle ID=86: GNARE|RINT|ARGOS|PulsosH
+2026/04/13 15:47:33 push.go:119: [push] nueva señal Oracle ID=87: GNARE|RINT|ARGOS|PPH
+2026/04/13 15:47:34 push.go:119: [push] nueva señal Oracle ID=88: GNARE|RINT|ARGOS|TPH
+2026/04/13 15:47:34 push.go:119: [push] nueva señal Oracle ID=89: GNARE|RINT|ARGOS|Vmult
+2026/04/13 15:47:35 push.go:119: [push] nueva señal Oracle ID=90: GNARE|RINT|ARGOS|VsPH
+2026/04/13 15:47:36 push.go:119: [push] nueva señal Oracle ID=91: GNARE|RINT|ARGOS|VaPH
+2026/04/13 15:47:36 push.go:119: [push] nueva señal Oracle ID=92: GNARE|RINT|ARGOS|EnaH
+2026/04/13 15:47:37 push.go:119: [push] nueva señal Oracle ID=93: GMACEO|RINT|BRAZO1|MinQAcum
+2026/04/13 15:47:38 push.go:119: [push] nueva señal Oracle ID=94: GMACEO|RINT|BRAZO1|PulsosH
+2026/04/13 15:47:38 push.go:119: [push] nueva señal Oracle ID=95: GMACEO|RINT|BRAZO1|PPH
+2026/04/13 15:47:39 push.go:119: [push] nueva señal Oracle ID=96: GMACEO|RINT|BRAZO1|TPH
+2026/04/13 15:47:39 push.go:119: [push] nueva señal Oracle ID=97: GMACEO|RINT|BRAZO1|Vmult
+2026/04/13 15:47:40 push.go:119: [push] nueva señal Oracle ID=98: GMACEO|RINT|BRAZO1|VsPH
+2026/04/13 15:47:41 push.go:119: [push] nueva señal Oracle ID=99: GMACEO|RINT|BRAZO1|VaPH
+2026/04/13 15:47:41 push.go:119: [push] nueva señal Oracle ID=100: GMACEO|RINT|BRAZO1|EnaH
+2026/04/13 15:47:42 push.go:119: [push] nueva señal Oracle ID=101: GLAFELIS|RINT|BRAZO1|MinQAcum
+2026/04/13 15:47:43 push.go:119: [push] nueva señal Oracle ID=102: GLAFELIS|RINT|BRAZO1|PulsosH
+2026/04/13 15:47:43 push.go:119: [push] nueva señal Oracle ID=103: GLAFELIS|RINT|BRAZO1|PPH
+2026/04/13 15:47:44 push.go:119: [push] nueva señal Oracle ID=104: GLAFELIS|RINT|BRAZO1|TPH
+2026/04/13 15:47:45 push.go:119: [push] nueva señal Oracle ID=105: GLAFELIS|RINT|BRAZO1|Vmult
+2026/04/13 15:47:45 push.go:119: [push] nueva señal Oracle ID=106: GLAFELIS|RINT|BRAZO1|VsPH
+2026/04/13 15:47:46 push.go:119: [push] nueva señal Oracle ID=107: GLAFELIS|RINT|BRAZO1|VaPH
+2026/04/13 15:47:47 push.go:119: [push] nueva señal Oracle ID=108: GLAFELIS|RINT|BRAZO1|EnaH
+2026/04/13 15:47:47 push.go:128: [push] remap: 108 señales (108 nuevas en Oracle)
+2026/04/13 15:47:47 main.go:45: push: push values: oracle upsert oracleID=88: begin tx: only support default value for isolation
