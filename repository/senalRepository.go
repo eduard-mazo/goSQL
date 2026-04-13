@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"goSQL/db"
 	"goSQL/models"
@@ -116,7 +117,7 @@ func (r *SenalRepository) FindAll(ctx context.Context) ([]models.RocSenal, error
 		return nil, fmt.Errorf("SenalRepo.FindAll: %w", err)
 	}
 	defer rows.Close()
-	return scanSenales(rows)
+	return r.scanSenales(rows)
 }
 
 // FindActivas returns only signals where ACTIVO = 'S'.
@@ -130,7 +131,7 @@ func (r *SenalRepository) FindActivas(ctx context.Context) ([]models.RocSenal, e
 		return nil, fmt.Errorf("SenalRepo.FindActivas: %w", err)
 	}
 	defer rows.Close()
-	return scanSenales(rows)
+	return r.scanSenales(rows)
 }
 
 // FindByID returns a signal by its SENAL_ID, or nil if not found.
@@ -146,7 +147,7 @@ func (r *SenalRepository) FindByID(ctx context.Context, senalID float64) (*model
 			 FROM HEPMGA.ROC_SENALES WHERE SENAL_ID = :senal_id`,
 			sql.Named("senal_id", senalID))
 	}
-	return scanOneSenal(row)
+	return r.scanOneSenal(row)
 }
 
 // FindByKeys finds a signal by B1, B2, B3. Returns nil if not found.
@@ -177,20 +178,34 @@ func (r *SenalRepository) FindByKeys(ctx context.Context, b1, b2, b3 string) (*m
 				sql.Named("b1", b1), sql.Named("b2", b2), sql.Named("b3", b3))
 		}
 	}
-	return scanOneSenal(row)
+	return r.scanOneSenal(row)
 }
 
 // ── scan helpers ──────────────────────────────────────────────────────────────
 
-func scanOneSenal(row *sql.Row) (*models.RocSenal, error) {
+func (r *SenalRepository) scanOneSenal(row *sql.Row) (*models.RocSenal, error) {
 	var s models.RocSenal
 	var b1, b2, b3, element, unidades sql.NullString
-	err := row.Scan(&s.SenalID, &b1, &b2, &b3, &element, &unidades, &s.Created, &s.Activo)
+	var createdStr sql.NullString
+
+	var err error
+	if r.db.Dialect == db.DialectSQLite {
+		err = row.Scan(&s.SenalID, &b1, &b2, &b3, &element, &unidades, &createdStr, &s.Activo)
+	} else {
+		err = row.Scan(&s.SenalID, &b1, &b2, &b3, &element, &unidades, &s.Created, &s.Activo)
+	}
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
 	if err != nil {
 		return nil, fmt.Errorf("SenalRepo scan: %w", err)
+	}
+	if r.db.Dialect == db.DialectSQLite && createdStr.Valid {
+		t, err := time.Parse(time.RFC3339, createdStr.String)
+		if err != nil {
+			return nil, fmt.Errorf("SenalRepo scan CREATED %q: %w", createdStr.String, err)
+		}
+		s.Created = t.Local()
 	}
 	s.B1 = nullStrToPtr(b1)
 	s.B2 = nullStrToPtr(b2)
@@ -200,16 +215,28 @@ func scanOneSenal(row *sql.Row) (*models.RocSenal, error) {
 	return &s, nil
 }
 
-func scanSenales(rows *sql.Rows) ([]models.RocSenal, error) {
+func (r *SenalRepository) scanSenales(rows *sql.Rows) ([]models.RocSenal, error) {
 	var result []models.RocSenal
 	for rows.Next() {
 		var s models.RocSenal
 		var b1, b2, b3, element, unidades sql.NullString
-		if err := rows.Scan(
-			&s.SenalID, &b1, &b2, &b3,
-			&element, &unidades, &s.Created, &s.Activo,
-		); err != nil {
+		var createdStr sql.NullString
+
+		var err error
+		if r.db.Dialect == db.DialectSQLite {
+			err = rows.Scan(&s.SenalID, &b1, &b2, &b3, &element, &unidades, &createdStr, &s.Activo)
+		} else {
+			err = rows.Scan(&s.SenalID, &b1, &b2, &b3, &element, &unidades, &s.Created, &s.Activo)
+		}
+		if err != nil {
 			return nil, fmt.Errorf("SenalRepo scan: %w", err)
+		}
+		if r.db.Dialect == db.DialectSQLite && createdStr.Valid {
+			t, err := time.Parse(time.RFC3339, createdStr.String)
+			if err != nil {
+				return nil, fmt.Errorf("SenalRepo scan CREATED %q: %w", createdStr.String, err)
+			}
+			s.Created = t.Local()
 		}
 		s.B1 = nullStrToPtr(b1)
 		s.B2 = nullStrToPtr(b2)
