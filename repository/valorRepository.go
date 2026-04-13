@@ -7,6 +7,8 @@ import (
 	"log"
 	"time"
 
+	go_ora "github.com/sijms/go-ora/v2"
+
 	"goSQL/db"
 	"goSQL/models"
 )
@@ -78,8 +80,8 @@ func (r *ValorRepository) UpsertBatch(ctx context.Context, valores []models.RocV
 		for _, v := range valores {
 			if _, err := stmt.ExecContext(ctx,
 				sql.Named("senal_id", v.SenalID),
-				sql.Named("fecha", v.Fecha),
-				sql.Named("synced_at", v.SyncedAt),
+				sql.Named("fecha", go_ora.TimeStamp(v.Fecha)),
+				sql.Named("synced_at", go_ora.TimeStamp(v.SyncedAt)),
 				sql.Named("valor", v.Valor),
 			); err != nil {
 				return fmt.Errorf("ValorRepo.UpsertBatch senal_id=%.0f fecha=%s: %w",
@@ -106,8 +108,8 @@ func (r *ValorRepository) Insert(ctx context.Context, v models.RocValor) error {
 			_, err = tx.ExecContext(ctx,
 				`INSERT INTO HEPMGA.ROC_VALORES (FECHA, SYNCED_AT, SENAL_ID, VALOR)
 				 VALUES (:fecha, :synced_at, :senal_id, :valor)`,
-				sql.Named("fecha", v.Fecha),
-				sql.Named("synced_at", v.SyncedAt),
+				sql.Named("fecha", go_ora.TimeStamp(v.Fecha)),
+				sql.Named("synced_at", go_ora.TimeStamp(v.SyncedAt)),
 				sql.Named("senal_id", v.SenalID),
 				sql.Named("valor", v.Valor),
 			)
@@ -152,8 +154,8 @@ func (r *ValorRepository) InsertBatch(ctx context.Context, valores []models.RocV
 				)
 			} else {
 				_, err = stmt.ExecContext(ctx,
-					sql.Named("fecha", v.Fecha),
-					sql.Named("synced_at", v.SyncedAt),
+					sql.Named("fecha", go_ora.TimeStamp(v.Fecha)),
+					sql.Named("synced_at", go_ora.TimeStamp(v.SyncedAt)),
 					sql.Named("senal_id", v.SenalID),
 					sql.Named("valor", v.Valor),
 				)
@@ -222,7 +224,7 @@ func (r *ValorRepository) FindBySenalIDFrom(ctx context.Context, senalID float64
 			`SELECT FECHA, SYNCED_AT, SENAL_ID, VALOR FROM `+tbl+
 				` WHERE SENAL_ID = :senal_id AND FECHA > :after ORDER BY FECHA ASC`,
 			sql.Named("senal_id", senalID),
-			sql.Named("after", after))
+			sql.Named("after", go_ora.TimeStamp(after)))
 	}
 	if err != nil {
 		return nil, fmt.Errorf("ValorRepo.FindBySenalIDFrom: %w", err)
@@ -274,8 +276,8 @@ func (r *ValorRepository) FindByRango(ctx context.Context, senalID float64, desd
 			`SELECT FECHA, SYNCED_AT, SENAL_ID, VALOR FROM `+tbl+
 				` WHERE SENAL_ID = :senal_id AND FECHA BETWEEN :desde AND :hasta ORDER BY FECHA ASC`,
 			sql.Named("senal_id", senalID),
-			sql.Named("desde", desde),
-			sql.Named("hasta", hasta))
+			sql.Named("desde", go_ora.TimeStamp(desde)),
+			sql.Named("hasta", go_ora.TimeStamp(hasta)))
 	}
 	if err != nil {
 		return nil, fmt.Errorf("ValorRepo.FindByRango: %w", err)
