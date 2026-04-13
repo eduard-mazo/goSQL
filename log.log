@@ -1,26 +1,8 @@
-2026/04/12 19:29:43 collector.go:265: [collector]   ────────────────────────────────────────────────────────────────────────────────
-2026/04/12 19:29:43 collector.go:266: [collector]   TAREA                          PTRS    VALS  RANGO                     T(s)  ALERTAS
-2026/04/12 19:29:43 collector.go:268: [collector]   ────────────────────────────────────────────────────────────────────────────────
-2026/04/12 19:29:43 collector.go:286: [collector]   GTASAJER / M1                   840    6720  2026-03-09→2026-04-13      2.8
-2026/04/12 19:29:43 collector.go:286: [collector]   GTASAJER / M2                   840    6720  2026-03-09→2026-04-13      2.8  zeros:5/8
-2026/04/12 19:29:43 collector.go:292: [collector]     zeros (5/8): EnaH MinQAcum PulsosH VaPH VsPH
-2026/04/12 19:29:43 collector.go:286: [collector]   GLLCUIVA / M1                   840    6720  2026-03-09→2026-04-13    209.6
-2026/04/12 19:29:43 collector.go:286: [collector]   GYOLOMBO / M1                   840    6712  2026-03-09→2026-04-13     90.2  gaps:1(1h)
-2026/04/12 19:29:43 collector.go:300: [collector]     gaps  (1 tramos, 1h): 2026-04-11T16Z→2026-04-11T18Z(1h)
-2026/04/12 19:29:43 collector.go:286: [collector]   GSTODOMI / M1                   840    6720  2026-03-09→2026-04-13     55.5
-2026/04/12 19:29:43 collector.go:286: [collector]   GSANVICE / M1                   840    6720  2026-03-09→2026-04-13      3.4
-2026/04/12 19:29:43 collector.go:286: [collector]   GGNC / M1                       840    3360  2026-03-08→2026-04-13      3.0  gaps:1(2h)
-2026/04/12 19:29:43 collector.go:300: [collector]     gaps  (1 tramos, 2h): 2026-03-15T12Z→2026-03-15T15Z(2h)
-2026/04/12 19:29:43 collector.go:286: [collector]   GGNC / M2                       840    6720  2026-03-08→2026-04-13      3.1  gaps:1(2h)
-2026/04/12 19:29:43 collector.go:300: [collector]     gaps  (1 tramos, 2h): 2026-03-15T12Z→2026-03-15T15Z(2h)
-2026/04/12 19:29:43 collector.go:286: [collector]   GGNC / M3                       840    6720  2026-03-07→2026-04-13      3.1  gaps:2(26h)
-2026/04/12 19:29:43 collector.go:300: [collector]     gaps  (2 tramos, 26h): 2026-03-15T12Z→2026-03-15T15Z(2h), 2026-03-26T19Z→2026-03-27T20Z(24h)
-2026/04/12 19:29:43 collector.go:286: [collector]   GGNC / M4                       840    6720  2026-03-08→2026-04-13      3.1  gaps:1(2h)
-2026/04/12 19:29:43 collector.go:300: [collector]     gaps  (1 tramos, 2h): 2026-03-15T12Z→2026-03-15T15Z(2h)
-2026/04/12 19:29:43 collector.go:286: [collector]   GNARE / M1                      840    6720  2026-03-09→2026-04-13      5.0
-2026/04/12 19:29:43 collector.go:286: [collector]   GNARE / M2                      840    6720  2026-03-09→2026-04-13      4.9  zeros:5/8
-2026/04/12 19:29:43 collector.go:292: [collector]     zeros (5/8): EnaH MinQAcum PulsosH VaPH VsPH
-2026/04/12 19:29:43 collector.go:286: [collector]   GMACEO / M1                     840    6720  2026-03-09→2026-04-13     16.3
-2026/04/12 19:29:43 collector.go:286: [collector]   GLAFELIS / M1                   840    6720  2026-03-09→2026-04-13      3.5
-2026/04/12 19:29:43 collector.go:326: [collector]   ────────────────────────────────────────────────────────────────────────────────
-2026/04/12 19:29:43 collector.go:327: [collector]   14 tareas  OK:7  WARN:7  ERR:0  |  90712 vals escritos  |  406.2s total
+PS C:\Users\emazoq\Documents\0dev\goSQL> .\roc-valores.exe --sqlite .\roc-valores.db push
+2026/04/13 15:31:15 main.go:22: roc-collector  version=d4b19df-dirty commit=d4b19df built=2026-04-13T20:03:10Z
+2026/04/13 15:31:15 db.go:60: [db] abriendo SQLite → .\roc-valores.db
+2026/04/13 15:31:15 db.go:76: [db] ✓ SQLite abierto y migrado
+2026/04/13 15:31:15 config.go:48: [config] DSN construido → oracle://USRWEBEPM:****@SGIODB-scan:1526/giodb
+2026/04/13 15:31:15 db.go:33: [db] conectando → SGIODB-scan:1526/giodb (go-ora, sin CGO)
+2026/04/13 15:31:19 db.go:53: [db] ✓ conexión establecida con Oracle
+2026/04/13 15:31:20 main.go:45: push: remap: sqlite FindAll: SenalRepo scan: sql: Scan error on column index 6, name "CREATED": unsupported Scan, storing driver.Value type string into type *time.Time
