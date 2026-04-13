@@ -6,7 +6,7 @@
 # ── variables ─────────────────────────────────────────────────────────────────
 BINARY    := roc-valores
 MODULE    := goSQL
-MAIN      := ./cmd/main.go
+MAIN      := ./cmd
 BUILD_DIR := ./bin
 
 # Detecta Windows (MSYS2 devuelve MSYS_NT-* o MINGW64_NT-*)
