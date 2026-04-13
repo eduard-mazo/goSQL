@@ -91,12 +91,7 @@ func (d *DB) HealthCheck(ctx context.Context) error {
 
 // WithTx executes fn inside a transaction with automatic commit/rollback.
 func (d *DB) WithTx(ctx context.Context, fn func(*sql.Tx) error) (err error) {
-	opts := &sql.TxOptions{Isolation: sql.LevelReadCommitted}
-	if d.Dialect == DialectSQLite {
-		opts = &sql.TxOptions{Isolation: sql.LevelDefault}
-	}
-
-	tx, err := d.BeginTx(ctx, opts)
+	tx, err := d.BeginTx(ctx, nil) // nil = driver default; go-ora rejects non-default isolation
 	if err != nil {
 		return fmt.Errorf("begin tx: %w", err)
 	}

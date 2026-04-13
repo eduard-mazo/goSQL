@@ -97,14 +97,14 @@ func buildIDRemap(
 	}
 
 	remap := make(map[float64]float64, len(sqliteSenales))
-	inserted := 0
+	var toInsert []models.RocSenal
 
 	for _, s := range sqliteSenales {
 		key := senalKey(s)
 		oracleID, ok := oracleByKey[key]
 		if !ok {
-			// Signal exists in SQLite but not Oracle — insert it.
-			row := models.RocSenal{
+			// Signal exists in SQLite but not Oracle — queue for batch insert.
+			toInsert = append(toInsert, models.RocSenal{
 				SenalID:  nextID,
 				B1:       s.B1,
 				B2:       s.B2,
@@ -112,20 +112,24 @@ func buildIDRemap(
 				Element:  s.Element,
 				Unidades: s.Unidades,
 				Activo:   s.Activo,
-			}
-			if err := oracleRepo.Insert(ctx, row); err != nil {
-				return nil, fmt.Errorf("oracle Insert %s: %w", key, err)
-			}
-			log.Printf("[push] nueva señal Oracle ID=%.0f: %s", nextID, key)
+			})
 			oracleByKey[key] = nextID
 			oracleID = nextID
 			nextID++
-			inserted++
 		}
 		remap[s.SenalID] = oracleID
 	}
 
-	log.Printf("[push] remap: %d señales (%d nuevas en Oracle)", len(remap), inserted)
+	if len(toInsert) > 0 {
+		if err := oracleRepo.InsertBatch(ctx, toInsert); err != nil {
+			return nil, fmt.Errorf("oracle InsertBatch: %w", err)
+		}
+		for _, s := range toInsert {
+			log.Printf("[push] nueva señal Oracle ID=%.0f: %s", s.SenalID, senalKey(s))
+		}
+	}
+
+	log.Printf("[push] remap: %d señales (%d nuevas en Oracle)", len(remap), len(toInsert))
 	return remap, nil
 }
 

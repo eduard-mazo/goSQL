@@ -105,6 +105,53 @@ func (r *SenalRepository) Insert(ctx context.Context, s models.RocSenal) error {
 	return nil
 }
 
+// InsertBatch inserts multiple signals in a single transaction.
+// CREATED is set by the DEFAULT expression on both Oracle and SQLite.
+func (r *SenalRepository) InsertBatch(ctx context.Context, rows []models.RocSenal) error {
+	if len(rows) == 0 {
+		return nil
+	}
+	return r.db.WithTx(ctx, func(tx *sql.Tx) error {
+		var (
+			stmt *sql.Stmt
+			err  error
+		)
+		if r.db.Dialect == db.DialectSQLite {
+			stmt, err = tx.PrepareContext(ctx,
+				`INSERT INTO ROC_SENALES (SENAL_ID, B1, B2, B3, ELEMENT, UNIDADES, ACTIVO)
+				 VALUES (?, ?, ?, ?, ?, ?, ?)`)
+		} else {
+			stmt, err = tx.PrepareContext(ctx,
+				`INSERT INTO HEPMGA.ROC_SENALES (SENAL_ID, B1, B2, B3, ELEMENT, UNIDADES, ACTIVO)
+				 VALUES (:senal_id, :b1, :b2, :b3, :element, :unidades, :activo)`)
+		}
+		if err != nil {
+			return fmt.Errorf("SenalRepo.InsertBatch prepare: %w", err)
+		}
+		defer stmt.Close()
+
+		for _, s := range rows {
+			if r.db.Dialect == db.DialectSQLite {
+				_, err = stmt.ExecContext(ctx, s.SenalID, s.B1, s.B2, s.B3, s.Element, s.Unidades, s.Activo)
+			} else {
+				_, err = stmt.ExecContext(ctx,
+					sql.Named("senal_id", s.SenalID),
+					sql.Named("b1", s.B1),
+					sql.Named("b2", s.B2),
+					sql.Named("b3", s.B3),
+					sql.Named("element", s.Element),
+					sql.Named("unidades", s.Unidades),
+					sql.Named("activo", s.Activo),
+				)
+			}
+			if err != nil {
+				return fmt.Errorf("SenalRepo.InsertBatch senal_id=%.0f: %w", s.SenalID, err)
+			}
+		}
+		return nil
+	})
+}
+
 // ── reads ─────────────────────────────────────────────────────────────────────
 
 // FindAll returns all signals ordered by SENAL_ID.
