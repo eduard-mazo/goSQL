@@ -78,10 +78,11 @@ func expandTasks(stations []StationConfig) []syncTask {
 
 // Collector polls ROC stations via Modbus TCP and writes hourly values to Oracle.
 type Collector struct {
-	db        *db.DB
-	senalRepo *repository.SenalRepository
-	valorRepo *repository.ValorRepository
-	tasks     []syncTask
+	db          *db.DB
+	senalRepo   *repository.SenalRepository
+	valorRepo   *repository.ValorRepository
+	pendingRepo *repository.PendingRepository // non-nil only when SQLite
+	tasks       []syncTask
 	// signalIDs maps "taskKey:flotante" → SENAL_ID.
 	// Populated by EnsureSignals; read-only after that.
 	signalIDs map[string]float64
@@ -98,13 +99,17 @@ func New(database *db.DB, configPath string) (*Collector, error) {
 		return nil, fmt.Errorf("parse %s: %w", configPath, err)
 	}
 
-	return &Collector{
+	c := &Collector{
 		db:        database,
 		senalRepo: repository.NewSenalRepository(database),
 		valorRepo: repository.NewValorRepository(database),
 		tasks:     expandTasks(cfg.Stations),
 		signalIDs: make(map[string]float64),
-	}, nil
+	}
+	if database.Dialect == db.DialectSQLite {
+		c.pendingRepo = repository.NewPendingRepository(database)
+	}
+	return c, nil
 }
 
 // ─── EnsureSignals ────────────────────────────────────────────────────────────
@@ -186,15 +191,32 @@ const (
 	statusWriteError  syncStatus = "WRITE ERROR"
 )
 
+type gapSource string
+
+const (
+	// gapSourceTimeout means pointers that errored during this sync overlap
+	// the gap window — the data may still be recoverable on retry.
+	gapSourceTimeout = gapSource("timeout")
+	// gapSourceDevice means consecutive records were fetched successfully but
+	// the device itself has no data for those hours (power loss, reset, etc.).
+	gapSourceDevice = gapSource("dispositivo")
+)
+
 // gapInfo describes a stretch of missing hourly records between two timestamps.
 type gapInfo struct {
-	From  time.Time
-	To    time.Time
-	Hours int // number of missing hours between From and To
+	From   time.Time
+	To     time.Time
+	Hours  int       // number of missing hours between From and To
+	Source gapSource // timeout (retryable) or dispositivo (real device gap)
 }
 
 func (g gapInfo) String() string {
-	return fmt.Sprintf("%s→%s(%dh)",
+	tag := "[D]"
+	if g.Source == gapSourceTimeout {
+		tag = "[T]"
+	}
+	return fmt.Sprintf("%s %s→%s(%dh)",
+		tag,
 		g.From.UTC().Format("2006-01-02T15Z"),
 		g.To.UTC().Format("2006-01-02T15Z"),
 		g.Hours)
@@ -211,6 +233,7 @@ type syncResult struct {
 	LastTS         time.Time  // last stored timestamp before this sync (for upToDate lines)
 	ZeroSignals    []string   // element names whose entire batch was zero
 	Gaps           []gapInfo  // hourly gaps (> 1 h) detected in the written batch
+	RecoveredPtrs  int        // pending pointers successfully recovered this sync
 	Elapsed        time.Duration
 	Err            error
 }
@@ -293,12 +316,23 @@ func (c *Collector) SyncAll(ctx context.Context) {
 						len(r.ZeroSignals), total, strings.Join(r.ZeroSignals, " "))
 				}
 				if len(r.Gaps) > 0 {
-					totalH := 0
+					totalH, timeouts, device := 0, 0, 0
 					for _, g := range r.Gaps {
 						totalH += g.Hours
+						if g.Source == gapSourceTimeout {
+							timeouts++
+						} else {
+							device++
+						}
 					}
-					log.Printf("[collector]     gaps  (%d tramos, %dh): %s",
-						len(r.Gaps), totalH, formatGaps(r.Gaps))
+					label := fmt.Sprintf("%d tramos, %dh", len(r.Gaps), totalH)
+					if timeouts > 0 {
+						label += fmt.Sprintf(", %d timeout", timeouts)
+					}
+					if device > 0 {
+						label += fmt.Sprintf(", %d dispositivo", device)
+					}
+					log.Printf("[collector]     gaps  (%s): %s", label, formatGaps(r.Gaps))
 				}
 				warn++
 			} else {
@@ -403,12 +437,48 @@ func (c *Collector) syncStation(ctx context.Context, task syncTask) syncResult {
 		currentPtrData = d
 	}
 
+	// Decode current pointer's timestamp (used for gap classification and pending approximation).
+	var currentTime time.Time
+	if len(currentPtrData) > 0 {
+		modes := modbus.DecodeAllModes(currentPtrData)
+		_, _, ts, ok := modbus.DecodeROCDateTime(modes, task.DBEndian)
+		if ok && ts > 0 {
+			currentTime = time.Unix(ts, 0)
+		}
+	}
+
 	// Compute which circular-buffer slots to fetch.
 	var ptrs []int
 	if hasHistory && len(currentPtrData) > 0 {
 		ptrs = timeDeltaPtrs(lastTS, currentPtr, currentPtrData, task.DBEndian)
 	} else {
 		ptrs = allPtrs()
+	}
+
+	// Load pending pointers from a previous sync (SQLite only) and merge them in.
+	type pendingEntry struct {
+		expectedTS time.Time
+		deadline   time.Time
+	}
+	pendingByPtr := make(map[int]pendingEntry)
+	if c.pendingRepo != nil {
+		loaded, err := c.pendingRepo.LoadForTask(ctx, task.Key)
+		if err != nil {
+			log.Printf("[%s] pending load: %v", task.Key, err)
+		}
+		for _, pp := range loaded {
+			pendingByPtr[pp.PtrIndex] = pendingEntry{pp.ExpectedTS, pp.Deadline}
+		}
+		// Merge: add pending indices not already in the fetch list.
+		inPtrs := make(map[int]bool, len(ptrs))
+		for _, p := range ptrs {
+			inPtrs[p] = true
+		}
+		for p := range pendingByPtr {
+			if !inPtrs[p] {
+				ptrs = append(ptrs, p)
+			}
+		}
 	}
 	sort.Ints(ptrs)
 
@@ -418,10 +488,11 @@ func (c *Collector) syncStation(ctx context.Context, task syncTask) syncResult {
 		return res
 	}
 
-
-	// Fetch records and build the batch.
+	// Fetch records, track successes and failures per pointer index.
 	polledAt := time.Now()
 	var batch []models.RocValor
+	failedPtrs := make(map[int]bool)
+	fetchedPtrs := make(map[int]time.Time) // ptr → decoded timestamp
 
 	for _, p := range ptrs {
 		var data []byte
@@ -431,6 +502,7 @@ func (c *Collector) syncStation(ctx context.Context, task syncTask) syncResult {
 			d, _, _, err := client.Execute(modbus.FCReadHoldingRegisters, task.DBAddr, uint16(p), nil)
 			if err != nil {
 				log.Printf("[%s] ptr=%d err: %v", task.Key, p, err)
+				failedPtrs[p] = true
 				continue
 			}
 			data = d
@@ -449,6 +521,7 @@ func (c *Collector) syncStation(ctx context.Context, task syncTask) syncResult {
 		if err != nil {
 			continue
 		}
+		fetchedPtrs[p] = recordTime
 
 		// Map each signal's Flotante to its mode index and SENAL_ID.
 		for _, sig := range task.Signals {
@@ -466,6 +539,49 @@ func (c *Collector) syncStation(ctx context.Context, task syncTask) syncResult {
 				SyncedAt: polledAt,
 				SenalID:  sid,
 				Valor:    models.F(val),
+			})
+		}
+	}
+
+	// Reconcile PENDING_POINTERS: recover, expire, and store new failures.
+	if c.pendingRepo != nil {
+		deadline := time.Now().Add(syncTotal * time.Hour)
+		for p, pe := range pendingByPtr {
+			if actualTS, ok := fetchedPtrs[p]; ok {
+				// Was pending and now fetched. Check if it's the same data slot.
+				diff := actualTS.Sub(pe.expectedTS)
+				if diff < 0 {
+					diff = -diff
+				}
+				if diff <= 90*time.Minute {
+					// Timestamp matches: data recovered.
+					_ = c.pendingRepo.Delete(ctx, task.Key, p)
+					res.RecoveredPtrs++
+					log.Printf("[%s] ptr=%d recovered (expectedTS=%s actualTS=%s)",
+						task.Key, p,
+						pe.expectedTS.UTC().Format("2006-01-02T15Z"),
+						actualTS.UTC().Format("2006-01-02T15Z"))
+				} else {
+					// Buffer wrapped: original data is gone.
+					_ = c.pendingRepo.Delete(ctx, task.Key, p)
+					log.Printf("[%s] ptr=%d expirado — buffer sobreescrito (expected=%s got=%s)",
+						task.Key, p,
+						pe.expectedTS.UTC().Format("2006-01-02T15Z"),
+						actualTS.UTC().Format("2006-01-02T15Z"))
+				}
+			}
+			// If ptr is still in failedPtrs it will be upserted below.
+		}
+		for p := range failedPtrs {
+			approx := time.Time{}
+			if !currentTime.IsZero() {
+				approx = approxPtrTime(p, currentPtr, currentTime)
+			}
+			_ = c.pendingRepo.Upsert(ctx, repository.PendingPointer{
+				TaskKey:    task.Key,
+				PtrIndex:   p,
+				ExpectedTS: approx,
+				Deadline:   deadline,
 			})
 		}
 	}
@@ -500,7 +616,7 @@ func (c *Collector) syncStation(ctx context.Context, task syncTask) syncResult {
 		}
 	}
 	res.ZeroSignals = detectZeroSignals(batch, sidElement)
-	res.Gaps = detectTimeGaps(batch, lastTS)
+	res.Gaps = detectTimeGaps(batch, lastTS, failedPtrs, currentPtr, currentTime)
 
 	if err := c.valorRepo.UpsertBatch(ctx, batch); err != nil {
 		res.Status = statusWriteError
@@ -516,10 +632,20 @@ func (c *Collector) syncStation(ctx context.Context, task syncTask) syncResult {
 }
 
 // detectTimeGaps finds stretches of missing hourly records in a batch.
-// All signals in a task share the same timestamps (same circular-buffer records),
-// so we deduplicate timestamps and check consecutive 1-hour differences.
-// lastTS is the last timestamp stored before this sync (zero if no history).
-func detectTimeGaps(batch []models.RocValor, lastTS time.Time) []gapInfo {
+// All signals share the same timestamps (same circular-buffer records), so
+// we deduplicate timestamps and check consecutive 1-hour differences.
+//
+// failedPtrs, currentPtr, and currentTime are used to classify each gap:
+//   - If a failed pointer's approximate timestamp falls inside the gap window
+//     → gapSourceTimeout (data may be recoverable on retry)
+//   - Otherwise → gapSourceDevice (the ROC device itself has no data for those hours)
+func detectTimeGaps(
+	batch []models.RocValor,
+	lastTS time.Time,
+	failedPtrs map[int]bool,
+	currentPtr int,
+	currentTime time.Time,
+) []gapInfo {
 	seen := make(map[time.Time]struct{})
 	for _, v := range batch {
 		seen[v.Fecha.UTC().Truncate(time.Hour)] = struct{}{}
@@ -534,6 +660,21 @@ func detectTimeGaps(batch []models.RocValor, lastTS time.Time) []gapInfo {
 		return nil
 	}
 
+	// classify returns the gap source by checking whether any failed pointer's
+	// approximate timestamp falls within (from, to).
+	classify := func(from, to time.Time) gapSource {
+		if len(failedPtrs) == 0 || currentTime.IsZero() {
+			return gapSourceDevice
+		}
+		for p := range failedPtrs {
+			approx := approxPtrTime(p, currentPtr, currentTime)
+			if approx.After(from) && approx.Before(to) {
+				return gapSourceTimeout
+			}
+		}
+		return gapSourceDevice
+	}
+
 	var gaps []gapInfo
 
 	// Gap between the last stored record and the first new one.
@@ -541,7 +682,7 @@ func detectTimeGaps(batch []models.RocValor, lastTS time.Time) []gapInfo {
 		prev := lastTS.UTC().Truncate(time.Hour)
 		missing := int(times[0].Sub(prev).Hours()) - 1
 		if missing > 0 {
-			gaps = append(gaps, gapInfo{From: prev, To: times[0], Hours: missing})
+			gaps = append(gaps, gapInfo{From: prev, To: times[0], Hours: missing, Source: classify(prev, times[0])})
 		}
 	}
 
@@ -549,11 +690,23 @@ func detectTimeGaps(batch []models.RocValor, lastTS time.Time) []gapInfo {
 	for i := 1; i < len(times); i++ {
 		missing := int(times[i].Sub(times[i-1]).Hours()) - 1
 		if missing > 0 {
-			gaps = append(gaps, gapInfo{From: times[i-1], To: times[i], Hours: missing})
+			gaps = append(gaps, gapInfo{From: times[i-1], To: times[i], Hours: missing, Source: classify(times[i-1], times[i])})
 		}
 	}
 
 	return gaps
+}
+
+// approxPtrTime estimates the timestamp of circular-buffer slot p given that
+// currentPtr was recorded at currentTime. Handles modular wrap-around.
+func approxPtrTime(p, currentPtr int, currentTime time.Time) time.Time {
+	delta := p - currentPtr
+	if delta > syncTotal/2 {
+		delta -= syncTotal
+	} else if delta < -syncTotal/2 {
+		delta += syncTotal
+	}
+	return currentTime.Add(time.Duration(delta) * time.Hour)
 }
 
 // formatGaps renders up to 3 gaps as a compact string, with a count of extras.
@@ -585,11 +738,22 @@ func buildAlerts(r syncResult) string {
 		parts = append(parts, fmt.Sprintf("zeros:%d/%d", len(r.ZeroSignals), total))
 	}
 	if len(r.Gaps) > 0 {
-		totalH := 0
+		totalH, timeouts := 0, 0
 		for _, g := range r.Gaps {
 			totalH += g.Hours
+			if g.Source == gapSourceTimeout {
+				timeouts++
+			}
 		}
-		parts = append(parts, fmt.Sprintf("gaps:%d(%dh)", len(r.Gaps), totalH))
+		s := fmt.Sprintf("gaps:%d(%dh", len(r.Gaps), totalH)
+		if timeouts > 0 {
+			s += fmt.Sprintf(",%dT", timeouts)
+		}
+		s += ")"
+		parts = append(parts, s)
+	}
+	if r.RecoveredPtrs > 0 {
+		parts = append(parts, fmt.Sprintf("recovered:%d", r.RecoveredPtrs))
 	}
 	return strings.Join(parts, " ")
 }
