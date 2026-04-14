@@ -1,9 +1,128 @@
 PS C:\Users\emazoq\Documents\0dev\goSQL> .\roc-valores.exe --sqlite .\roc-valores.db push
-2026/04/13 16:05:18 main.go:22: roc-collector  version=6d31812-dirty commit=6d31812 built=2026-04-13T21:00:47Z
-2026/04/13 16:05:18 db.go:60: [db] abriendo SQLite → .\roc-valores.db
-2026/04/13 16:05:18 db.go:76: [db] ✓ SQLite abierto y migrado
-2026/04/13 16:05:18 config.go:48: [config] DSN construido → oracle://USRWEBEPM:****@SGIODB-scan:1526/giodb
-2026/04/13 16:05:18 db.go:33: [db] conectando → SGIODB-scan:1526/giodb (go-ora, sin CGO)
-2026/04/13 16:05:22 db.go:53: [db] ✓ conexión establecida con Oracle
-2026/04/13 16:05:24 push.go:132: [push] remap: 108 señales (0 nuevas en Oracle)
-2026/04/13 16:05:25 main.go:45: push: push values: oracle upsert oracleID=75: ValorRepo.UpsertBatch senal_id=75 fecha=2026-04-13T11:00:00-05:00: sql: converting argument with name "fecha" type: non-Value type go_ora.TimeStamp returned from Value
+2026/04/13 16:20:36 main.go:22: roc-collector  version=a256539-dirty commit=a256539 built=2026-04-13T21:15:01Z
+2026/04/13 16:20:36 db.go:60: [db] abriendo SQLite → .\roc-valores.db
+2026/04/13 16:20:36 db.go:76: [db] ✓ SQLite abierto y migrado
+2026/04/13 16:20:36 config.go:48: [config] DSN construido → oracle://USRWEBEPM:****@SGIODB-scan:1526/giodb
+2026/04/13 16:20:36 db.go:33: [db] conectando → SGIODB-scan:1526/giodb (go-ora, sin CGO)
+2026/04/13 16:20:40 db.go:53: [db] ✓ conexión establecida con Oracle
+2026/04/13 16:20:42 push.go:132: [push] remap: 108 señales (0 nuevas en Oracle)
+2026/04/13 16:24:20 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:24:21 push.go:181: [push]  sqliteID=2 → oracleID=2   840 valores
+2026/04/13 16:28:34 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:28:35 push.go:181: [push]  sqliteID=36 → oracleID=36   840 valores
+2026/04/13 16:32:53 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:32:54 push.go:181: [push]  sqliteID=85 → oracleID=85   840 valores
+2026/04/13 16:33:30 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:33:30 push.go:181: [push]  sqliteID=88 → oracleID=88   840 valores
+2026/04/13 16:33:33 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:33:33 push.go:181: [push]  sqliteID=108 → oracleID=108   840 valores
+2026/04/13 16:33:36 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:33:36 push.go:181: [push]  sqliteID=16 → oracleID=16   840 valores
+2026/04/13 16:33:38 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:33:38 push.go:181: [push]  sqliteID=19 → oracleID=19   840 valores
+2026/04/13 16:33:41 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:33:41 push.go:181: [push]  sqliteID=20 → oracleID=20   840 valores
+2026/04/13 16:33:44 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:33:44 push.go:181: [push]  sqliteID=21 → oracleID=21   840 valores
+2026/04/13 16:33:47 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:33:47 push.go:181: [push]  sqliteID=52 → oracleID=52   840 valores
+2026/04/13 16:33:50 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:33:50 push.go:181: [push]  sqliteID=55 → oracleID=55   840 valores
+2026/04/13 16:33:54 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:33:54 push.go:181: [push]  sqliteID=56 → oracleID=56   840 valores
+2026/04/13 16:33:57 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:33:57 push.go:181: [push]  sqliteID=57 → oracleID=57   840 valores
+2026/04/13 16:34:00 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:34:00 push.go:181: [push]  sqliteID=17 → oracleID=17   840 valores
+2026/04/13 16:34:04 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:34:04 push.go:181: [push]  sqliteID=69 → oracleID=69   840 valores
+2026/04/13 16:34:07 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:34:07 push.go:181: [push]  sqliteID=70 → oracleID=70   840 valores
+2026/04/13 16:34:10 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:34:10 push.go:181: [push]  sqliteID=74 → oracleID=74   840 valores
+2026/04/13 16:34:13 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:34:13 push.go:181: [push]  sqliteID=82 → oracleID=82   840 valores
+2026/04/13 16:34:17 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:34:17 push.go:181: [push]  sqliteID=89 → oracleID=89   840 valores
+2026/04/13 16:34:20 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:34:20 push.go:181: [push]  sqliteID=93 → oracleID=93   840 valores
+2026/04/13 16:34:23 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:34:23 push.go:181: [push]  sqliteID=105 → oracleID=105   840 valores
+2026/04/13 16:34:27 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:34:27 push.go:181: [push]  sqliteID=7 → oracleID=7   840 valores
+2026/04/13 16:34:30 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:34:30 push.go:181: [push]  sqliteID=15 → oracleID=15   840 valores
+2026/04/13 16:34:34 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:34:34 push.go:181: [push]  sqliteID=29 → oracleID=29   840 valores
+2026/04/13 16:34:37 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:34:37 push.go:181: [push]  sqliteID=30 → oracleID=30   840 valores
+2026/04/13 16:34:41 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:34:41 push.go:181: [push]  sqliteID=34 → oracleID=34   840 valores
+2026/04/13 16:34:45 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:34:45 push.go:181: [push]  sqliteID=40 → oracleID=40   840 valores
+2026/04/13 16:34:49 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:34:49 push.go:181: [push]  sqliteID=42 → oracleID=42   840 valores
+2026/04/13 16:34:52 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:34:52 push.go:181: [push]  sqliteID=54 → oracleID=54   840 valores
+2026/04/13 16:34:55 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:34:55 push.go:181: [push]  sqliteID=9 → oracleID=9   840 valores
+2026/04/13 16:34:59 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:34:59 push.go:181: [push]  sqliteID=28 → oracleID=28   840 valores
+2026/04/13 16:35:03 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:35:03 push.go:181: [push]  sqliteID=45 → oracleID=45   840 valores
+2026/04/13 16:35:06 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:35:06 push.go:181: [push]  sqliteID=50 → oracleID=50   840 valores
+2026/04/13 16:35:10 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:35:10 push.go:181: [push]  sqliteID=81 → oracleID=81   840 valores
+2026/04/13 16:35:13 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:35:14 push.go:181: [push]  sqliteID=91 → oracleID=91   840 valores
+2026/04/13 16:35:17 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:35:17 push.go:181: [push]  sqliteID=97 → oracleID=97   840 valores
+2026/04/13 16:35:20 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:35:20 push.go:181: [push]  sqliteID=101 → oracleID=101   840 valores
+2026/04/13 16:35:24 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:35:24 push.go:181: [push]  sqliteID=8 → oracleID=8   840 valores
+2026/04/13 16:35:28 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:35:28 push.go:181: [push]  sqliteID=12 → oracleID=12   840 valores
+2026/04/13 16:35:32 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:35:32 push.go:181: [push]  sqliteID=38 → oracleID=38   840 valores
+2026/04/13 16:35:36 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:35:36 push.go:181: [push]  sqliteID=53 → oracleID=53   840 valores
+2026/04/13 16:35:39 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:35:39 push.go:181: [push]  sqliteID=77 → oracleID=77   840 valores
+2026/04/13 16:35:43 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:35:43 push.go:181: [push]  sqliteID=107 → oracleID=107   840 valores
+2026/04/13 16:35:47 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:35:47 push.go:181: [push]  sqliteID=22 → oracleID=22   840 valores
+2026/04/13 16:35:51 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:35:51 push.go:181: [push]  sqliteID=31 → oracleID=31   840 valores
+2026/04/13 16:35:55 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:35:55 push.go:181: [push]  sqliteID=33 → oracleID=33   840 valores
+2026/04/13 16:35:59 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:35:59 push.go:181: [push]  sqliteID=48 → oracleID=48   840 valores
+2026/04/13 16:36:03 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:36:03 push.go:181: [push]  sqliteID=61 → oracleID=61   840 valores
+2026/04/13 16:36:07 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:36:07 push.go:181: [push]  sqliteID=84 → oracleID=84   840 valores
+2026/04/13 16:36:11 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:36:14 push.go:181: [push]  sqliteID=104 → oracleID=104   840 valores
+2026/04/13 16:36:19 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:36:19 push.go:181: [push]  sqliteID=25 → oracleID=25   840 valores
+2026/04/13 16:36:23 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:36:23 push.go:181: [push]  sqliteID=27 → oracleID=27   840 valores
+2026/04/13 16:36:28 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:36:28 push.go:181: [push]  sqliteID=72 → oracleID=72   840 valores
+2026/04/13 16:36:32 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:36:32 push.go:181: [push]  sqliteID=86 → oracleID=86   840 valores
+2026/04/13 16:36:37 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 16:36:37 push.go:181: [push]  sqliteID=90 → oracleID=90   840 valores
+2026/04/13 16:36:41 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:36:29 push.go:181: [push]  sqliteID=98 → oracleID=98   840 valores
+2026/04/13 20:36:33 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:36:33 push.go:181: [push]  sqliteID=24 → oracleID=24   840 valores
+2026/04/13 20:36:37 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:36:37 push.go:181: [push]  sqliteID=47 → oracleID=47   840 valores
+2026/04/13 20:36:41 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:36:41 push.go:181: [push]  sqliteID=49 → oracleID=49   840 valores
+2026/04/13 20:36:46 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:36:46 push.go:181: [push]  sqliteID=59 → oracleID=59   840 valores
