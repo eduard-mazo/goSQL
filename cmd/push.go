@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -108,9 +109,9 @@ type pushResult struct {
 // Only records with FECHA > Oracle MAX(FECHA) are sent (incremental, idempotent).
 //
 // Logging strategy:
-//   - Progress bar every 10% of signals processed
-//   - Individual log lines ONLY for signals with actual new inserts
-//   - Silent for signals that are already up to date
+//   - Animated progress bar on a single line (overwritten in-place via \r)
+//   - Permanent log lines ONLY for signals with actual new inserts
+//   - Summary table printed at the end by the caller
 func pushValues(
 	ctx context.Context,
 	sqliteValorRepo *repository.ValorRepository,
@@ -128,22 +129,26 @@ func pushValues(
 	close(jobCh)
 
 	var (
-		mu           sync.Mutex
-		firstErr     error
-		written      int
-		inserted     int
-		skipped      int // no values to send
-		upToDate     int // values sent but all existed
-		done         int
-		lastPctLog   int // last percentage that triggered a progress bar
+		mu       sync.Mutex
+		firstErr error
+		written  int
+		inserted int
+		skipped  int // no values to send
+		upToDate int // values sent but all existed
+		done     int
 	)
 
-	// progressBar builds a visual bar: [████████░░░░░░░░░░░░] 45%
-	progressBar := func(pct int) string {
+	// renderBar overwrites the current terminal line with the progress bar.
+	// Must be called with mu held.
+	renderBar := func() {
+		pct := done * 100 / jobsTotal
 		const width = 30
 		filled := width * pct / 100
 		bar := strings.Repeat("█", filled) + strings.Repeat("░", width-filled)
-		return fmt.Sprintf("[%s] %3d%%", bar, pct)
+		line := fmt.Sprintf("\r[push] [%s] %3d%%  %d/%d señales  (enviados:%d nuevos:%d)",
+			bar, pct, done, jobsTotal, written, inserted)
+		// Pad with spaces to clear any leftover characters from previous longer lines.
+		fmt.Fprintf(os.Stderr, "%-90s", line)
 	}
 
 	pushCtx, cancel := context.WithCancel(ctx)
@@ -190,12 +195,7 @@ func pushValues(
 					mu.Lock()
 					done++
 					skipped++
-					pct := done * 100 / jobsTotal
-					if pct/10 > lastPctLog/10 || done == jobsTotal {
-						log.Printf("[push] %s  %d/%d señales  (enviados:%d nuevos:%d)",
-							progressBar(pct), done, jobsTotal, written, inserted)
-						lastPctLog = pct
-					}
+					renderBar()
 					mu.Unlock()
 					continue
 				}
@@ -224,24 +224,24 @@ func pushValues(
 					upToDate++
 				}
 
-				// Log individual line only when there are actual new inserts.
+				// Print a permanent line above the bar only when there are actual new inserts.
 				if ur.Inserted > 0 {
+					// Clear the bar line, print the permanent log, then redraw the bar.
+					fmt.Fprintf(os.Stderr, "\r%-90s\r", "")
 					log.Printf("[push]   + oracleID=%.0f  %d nuevos (%d enviados)",
 						j.oracleID, ur.Inserted, ur.Sent)
 				}
 
-				pct := done * 100 / jobsTotal
-				if pct/10 > lastPctLog/10 || done == jobsTotal {
-					log.Printf("[push] %s  %d/%d señales  (enviados:%d nuevos:%d)",
-						progressBar(pct), done, jobsTotal, written, inserted)
-					lastPctLog = pct
-				}
+				renderBar()
 				mu.Unlock()
 			}
 		})
 	}
 
 	wg.Wait()
+
+	// Clear the progress bar line so the summary starts clean.
+	fmt.Fprintf(os.Stderr, "\r%-90s\r", "")
 
 	// After wg.Wait() all goroutines have exited — safe to read without mutex.
 	pr := pushResult{sent: written, inserted: inserted, skipped: skipped, upToDate: upToDate}
