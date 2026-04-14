@@ -29,15 +29,23 @@ func valoresTable(d db.Dialect) string {
 
 // ── escritura ────────────────────────────────────────────────────────────────
 
+// UpsertResult holds the outcome of an UpsertBatch call.
+type UpsertResult struct {
+	Sent     int // total rows attempted
+	Inserted int // rows actually inserted (not already present)
+}
+
 // UpsertBatch inserts multiple values, skipping rows that already exist
 // for the same (SENAL_ID, FECHA) pair.
-func (r *ValorRepository) UpsertBatch(ctx context.Context, valores []models.RocValor) error {
+// Returns the count of rows actually inserted vs already present.
+func (r *ValorRepository) UpsertBatch(ctx context.Context, valores []models.RocValor) (UpsertResult, error) {
+	out := UpsertResult{Sent: len(valores)}
 	if len(valores) == 0 {
-		return nil
+		return out, nil
 	}
 
 	if r.db.Dialect == db.DialectSQLite {
-		return r.db.WithTx(ctx, func(tx *sql.Tx) error {
+		err := r.db.WithTx(ctx, func(tx *sql.Tx) error {
 			stmt, err := tx.PrepareContext(ctx,
 				`INSERT INTO ROC_VALORES (FECHA, SYNCED_AT, SENAL_ID, VALOR)
 				 VALUES (?, ?, ?, ?)
@@ -47,18 +55,27 @@ func (r *ValorRepository) UpsertBatch(ctx context.Context, valores []models.RocV
 			}
 			defer stmt.Close()
 			for _, v := range valores {
-				if _, err := stmt.ExecContext(ctx,
+				res, err := stmt.ExecContext(ctx,
 					v.Fecha.UTC().Format(time.RFC3339),
 					v.SyncedAt.UTC().Format(time.RFC3339),
 					v.SenalID, v.Valor,
-				); err != nil {
+				)
+				if err != nil {
 					return fmt.Errorf("ValorRepo.UpsertBatch senal_id=%.0f fecha=%s: %w",
 						v.SenalID, v.Fecha.Format(time.RFC3339), err)
 				}
+				if n, _ := res.RowsAffected(); n > 0 {
+					out.Inserted++
+				}
 			}
-			log.Printf("[repo] UpsertBatch → %d valores procesados", len(valores))
 			return nil
 		})
+		if err != nil {
+			return out, err
+		}
+		log.Printf("[repo] UpsertBatch → %d enviados, %d nuevos, %d existentes",
+			out.Sent, out.Inserted, out.Sent-out.Inserted)
+		return out, nil
 	}
 
 	// Oracle MERGE: insert only when the (SENAL_ID, FECHA) pair is absent.
@@ -69,26 +86,35 @@ func (r *ValorRepository) UpsertBatch(ctx context.Context, valores []models.RocV
 			INSERT (FECHA, SYNCED_AT, SENAL_ID, VALOR)
 			VALUES (:fecha, :synced_at, :senal_id, :valor)`
 
-	return r.db.WithTx(ctx, func(tx *sql.Tx) error {
+	err := r.db.WithTx(ctx, func(tx *sql.Tx) error {
 		stmt, err := tx.PrepareContext(ctx, q)
 		if err != nil {
 			return fmt.Errorf("ValorRepo.UpsertBatch prepare: %w", err)
 		}
 		defer stmt.Close()
 		for _, v := range valores {
-			if _, err := stmt.ExecContext(ctx,
+			res, err := stmt.ExecContext(ctx,
 				sql.Named("senal_id", v.SenalID),
 				sql.Named("fecha", v.Fecha),
 				sql.Named("synced_at", v.SyncedAt),
 				sql.Named("valor", v.Valor),
-			); err != nil {
+			)
+			if err != nil {
 				return fmt.Errorf("ValorRepo.UpsertBatch senal_id=%.0f fecha=%s: %w",
 					v.SenalID, v.Fecha.Format(time.RFC3339), err)
 			}
+			if n, _ := res.RowsAffected(); n > 0 {
+				out.Inserted++
+			}
 		}
-		log.Printf("[repo] UpsertBatch → %d valores procesados", len(valores))
 		return nil
 	})
+	if err != nil {
+		return out, err
+	}
+	log.Printf("[repo] UpsertBatch → %d enviados, %d nuevos, %d existentes",
+		out.Sent, out.Inserted, out.Sent-out.Inserted)
+	return out, nil
 }
 
 // Insert inserts a single value.

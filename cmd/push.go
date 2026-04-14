@@ -71,15 +71,21 @@ func runPushToOracle(ctx context.Context, sqlitePath string) error {
 	}
 
 	// ── stream values to Oracle (pushWorkers concurrent goroutines) ───────────
-	total, err := pushValues(ctx, sqliteValorRepo, oracleValorRepo, remap)
+	pr, err := pushValues(ctx, sqliteValorRepo, oracleValorRepo, remap)
 	elapsed := time.Since(start)
 	if err != nil {
-		log.Printf("[push] interrumpido: %d valores enviados en %.1fs", total, elapsed.Seconds())
+		log.Printf("[push] interrumpido: %d enviados (%d nuevos) en %.1fs", pr.sent, pr.inserted, elapsed.Seconds())
 		return fmt.Errorf("push values: %w", err)
 	}
 
-	log.Printf("[push] completado: %d valores → Oracle en %.1fs", total, elapsed.Seconds())
+	log.Printf("[push] completado: %d enviados, %d nuevos, %d existentes → Oracle en %.1fs",
+		pr.sent, pr.inserted, pr.sent-pr.inserted, elapsed.Seconds())
 	return nil
+}
+
+type pushResult struct {
+	sent     int
+	inserted int
 }
 
 // pushValues sends SQLite values to Oracle using pushWorkers concurrent goroutines.
@@ -90,7 +96,7 @@ func pushValues(
 	sqliteValorRepo *repository.ValorRepository,
 	oracleValorRepo *repository.ValorRepository,
 	remap map[float64]float64,
-) (int, error) {
+) (pushResult, error) {
 
 	type job struct{ sqliteID, oracleID float64 }
 
@@ -102,11 +108,12 @@ func pushValues(
 	close(jobCh)
 
 	var (
-		mu       sync.Mutex
-		firstErr error
-		written  int
-		skipped  int
-		done     int
+		mu         sync.Mutex
+		firstErr   error
+		written    int
+		inserted   int
+		skipped    int
+		done       int
 	)
 
 	pushCtx, cancel := context.WithCancel(ctx)
@@ -165,7 +172,8 @@ func pushValues(
 					valores[k].SenalID = j.oracleID
 				}
 
-				if err := oracleValorRepo.UpsertBatch(pushCtx, valores); err != nil {
+				ur, err := oracleValorRepo.UpsertBatch(pushCtx, valores)
+				if err != nil {
 					mu.Lock()
 					if firstErr == nil {
 						firstErr = fmt.Errorf("oracle upsert oracleID=%.0f: %w", j.oracleID, err)
@@ -177,11 +185,17 @@ func pushValues(
 
 				mu.Lock()
 				done++
-				written += len(valores)
+				written += ur.Sent
+				inserted += ur.Inserted
 				d := done
 				mu.Unlock()
-				log.Printf("[push] %d/%d (%d%%) sqliteID=%.0f → oracleID=%.0f  %4d valores",
-					d, jobsTotal, d*100/jobsTotal, j.sqliteID, j.oracleID, len(valores))
+				if ur.Inserted == ur.Sent {
+					log.Printf("[push] %d/%d (%d%%) sqliteID=%.0f → oracleID=%.0f  %4d nuevos",
+						d, jobsTotal, d*100/jobsTotal, j.sqliteID, j.oracleID, ur.Inserted)
+				} else {
+					log.Printf("[push] %d/%d (%d%%) sqliteID=%.0f → oracleID=%.0f  %4d enviados, %d nuevos, %d existentes",
+						d, jobsTotal, d*100/jobsTotal, j.sqliteID, j.oracleID, ur.Sent, ur.Inserted, ur.Sent-ur.Inserted)
+				}
 			}
 		})
 	}
@@ -189,13 +203,14 @@ func pushValues(
 	wg.Wait()
 
 	// After wg.Wait() all goroutines have exited — safe to read without mutex.
+	pr := pushResult{sent: written, inserted: inserted}
 	if firstErr != nil {
-		return written, firstErr
+		return pr, firstErr
 	}
 	if skipped > 0 {
 		log.Printf("[push] %d señales ya al día en Oracle (sin nuevos valores)", skipped)
 	}
-	return written, nil
+	return pr, nil
 }
 
 // buildIDRemap maps every SQLite SENAL_ID to its corresponding Oracle SENAL_ID

@@ -227,13 +227,14 @@ type syncResult struct {
 	Addr           string        // "ip:port" — shown on error lines
 	Status         syncStatus
 	RecordsFetched int
-	ValuesWritten  int
-	MinFecha       time.Time  // earliest timestamp written in this batch
-	MaxFecha       time.Time  // latest timestamp written in this batch
-	LastTS         time.Time  // last stored timestamp before this sync (for upToDate lines)
-	ZeroSignals    []string   // element names whose entire batch was zero
-	Gaps           []gapInfo  // hourly gaps (> 1 h) detected in the written batch
-	RecoveredPtrs  int        // pending pointers successfully recovered this sync
+	ValuesWritten  int           // total values sent to UpsertBatch
+	ValuesInserted int           // actually new rows inserted (not already present)
+	MinFecha       time.Time     // earliest timestamp written in this batch
+	MaxFecha       time.Time     // latest timestamp written in this batch
+	LastTS         time.Time     // last stored timestamp before this sync (for upToDate lines)
+	ZeroSignals    []string      // element names whose entire batch was zero
+	Gaps           []gapInfo     // hourly gaps (> 1 h) detected in the written batch
+	RecoveredPtrs  int           // pending pointers successfully recovered this sync
 	Elapsed        time.Duration
 	Err            error
 }
@@ -284,14 +285,14 @@ func (c *Collector) SyncAll(ctx context.Context) {
 	wg.Wait()
 
 	// ── summary table ────────────────────────────────────────────────────────
-	const sep = "  ────────────────────────────────────────────────────────────────────────────────"
+	const sep = "  ────────────────────────────────────────────────────────────────────────────────────────"
 	log.Printf("[collector] %s", sep)
-	log.Printf("[collector]   %-28s  %5s  %6s  %-23s  %5s  %s",
-		"TAREA", "PTRS", "VALS", "RANGO", "T(s)", "ALERTAS")
+	log.Printf("[collector]   %-28s  %5s  %10s  %-23s  %5s  %s",
+		"TAREA", "PTRS", "VALS(+new)", "RANGO", "T(s)", "ALERTAS")
 	log.Printf("[collector] %s", sep)
 
 	ok, warn, fail := 0, 0, 0
-	totalVals := 0
+	totalVals, totalInserted := 0, 0
 	var totalElapsed time.Duration
 
 	for _, r := range results {
@@ -306,9 +307,11 @@ func (c *Collector) SyncAll(ctx context.Context) {
 					r.MinFecha.UTC().Format("2006-01-02"),
 					r.MaxFecha.UTC().Format("2006-01-02"))
 			}
-			log.Printf("[collector]   %-28s  %5d  %6d  %-23s  %5.1f  %s",
-				r.Task, r.RecordsFetched, r.ValuesWritten, rng, r.Elapsed.Seconds(), alerts)
+			valsCol := fmt.Sprintf("%d(+%d)", r.ValuesWritten, r.ValuesInserted)
+			log.Printf("[collector]   %-28s  %5d  %10s  %-23s  %5.1f  %s",
+				r.Task, r.RecordsFetched, valsCol, rng, r.Elapsed.Seconds(), alerts)
 			totalVals += r.ValuesWritten
+			totalInserted += r.ValuesInserted
 			if alerts != "" {
 				if len(r.ZeroSignals) > 0 {
 					total := len(r.ZeroSignals) + countNonZero(r.ZeroSignals, r.ValuesWritten, r.RecordsFetched)
@@ -358,8 +361,8 @@ func (c *Collector) SyncAll(ctx context.Context) {
 	}
 
 	log.Printf("[collector] %s", sep)
-	log.Printf("[collector]   %d tareas  OK:%d  WARN:%d  ERR:%d  |  %d vals escritos  |  %.1fs total",
-		len(results), ok, warn, fail, totalVals, totalElapsed.Seconds())
+	log.Printf("[collector]   %d tareas  OK:%d  WARN:%d  ERR:%d  |  %d vals enviados, %d nuevos, %d existentes  |  %.1fs total",
+		len(results), ok, warn, fail, totalVals, totalInserted, totalVals-totalInserted, totalElapsed.Seconds())
 	log.Printf("[collector] %s", sep)
 }
 
@@ -618,7 +621,8 @@ func (c *Collector) syncStation(ctx context.Context, task syncTask) syncResult {
 	res.ZeroSignals = detectZeroSignals(batch, sidElement)
 	res.Gaps = detectTimeGaps(batch, lastTS, failedPtrs, currentPtr, currentTime)
 
-	if err := c.valorRepo.UpsertBatch(ctx, batch); err != nil {
+	ur, err := c.valorRepo.UpsertBatch(ctx, batch)
+	if err != nil {
 		res.Status = statusWriteError
 		res.Err = err
 		res.Elapsed = time.Since(start)
@@ -626,7 +630,8 @@ func (c *Collector) syncStation(ctx context.Context, task syncTask) syncResult {
 	}
 
 	res.Status = statusOK
-	res.ValuesWritten = len(batch)
+	res.ValuesWritten = ur.Sent
+	res.ValuesInserted = ur.Inserted
 	res.Elapsed = time.Since(start)
 	return res
 }
