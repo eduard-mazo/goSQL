@@ -70,12 +70,7 @@ func (r *ValorRepository) UpsertBatch(ctx context.Context, valores []models.RocV
 			}
 			return nil
 		})
-		if err != nil {
-			return out, err
-		}
-		log.Printf("[repo] UpsertBatch → %d enviados, %d nuevos, %d existentes",
-			out.Sent, out.Inserted, out.Sent-out.Inserted)
-		return out, nil
+		return out, err
 	}
 
 	// Oracle MERGE: insert only when the (SENAL_ID, FECHA) pair is absent.
@@ -109,12 +104,7 @@ func (r *ValorRepository) UpsertBatch(ctx context.Context, valores []models.RocV
 		}
 		return nil
 	})
-	if err != nil {
-		return out, err
-	}
-	log.Printf("[repo] UpsertBatch → %d enviados, %d nuevos, %d existentes",
-		out.Sent, out.Inserted, out.Sent-out.Inserted)
-	return out, nil
+	return out, err
 }
 
 // Insert inserts a single value.

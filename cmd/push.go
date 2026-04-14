@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"sync"
 	"time"
 
@@ -73,24 +74,43 @@ func runPushToOracle(ctx context.Context, sqlitePath string) error {
 	// ── stream values to Oracle (pushWorkers concurrent goroutines) ───────────
 	pr, err := pushValues(ctx, sqliteValorRepo, oracleValorRepo, remap)
 	elapsed := time.Since(start)
+
+	// ── summary ──────────────────────────────────────────────────────────────
+	const sep = "────────────────────────────────────────────────"
+	log.Printf("[push] %s", sep)
 	if err != nil {
-		log.Printf("[push] interrumpido: %d enviados (%d nuevos) en %.1fs", pr.sent, pr.inserted, elapsed.Seconds())
+		log.Printf("[push]  INTERRUMPIDO   %.1fs", elapsed.Seconds())
+	} else {
+		log.Printf("[push]  COMPLETADO     %.1fs", elapsed.Seconds())
+	}
+	log.Printf("[push]  Señales:       %d total", len(remap))
+	log.Printf("[push]    con datos:   %d", len(remap)-pr.skipped)
+	log.Printf("[push]    ya al día:   %d (sin valores pendientes)", pr.skipped)
+	log.Printf("[push]  Valores:       %d enviados", pr.sent)
+	log.Printf("[push]    nuevos:      %d insertados", pr.inserted)
+	log.Printf("[push]    existentes:  %d (ya en Oracle)", pr.sent-pr.inserted)
+	log.Printf("[push] %s", sep)
+
+	if err != nil {
 		return fmt.Errorf("push values: %w", err)
 	}
-
-	log.Printf("[push] completado: %d enviados, %d nuevos, %d existentes → Oracle en %.1fs",
-		pr.sent, pr.inserted, pr.sent-pr.inserted, elapsed.Seconds())
 	return nil
 }
 
 type pushResult struct {
 	sent     int
 	inserted int
+	skipped  int // signals with 0 pending values (already up to date)
+	upToDate int // signals with values sent but 0 new inserts
 }
 
 // pushValues sends SQLite values to Oracle using pushWorkers concurrent goroutines.
 // Only records with FECHA > Oracle MAX(FECHA) are sent (incremental, idempotent).
-// Progress is logged as "N/total (XX%) ..." after each signal completes.
+//
+// Logging strategy:
+//   - Progress bar every 10% of signals processed
+//   - Individual log lines ONLY for signals with actual new inserts
+//   - Silent for signals that are already up to date
 func pushValues(
 	ctx context.Context,
 	sqliteValorRepo *repository.ValorRepository,
@@ -108,13 +128,23 @@ func pushValues(
 	close(jobCh)
 
 	var (
-		mu         sync.Mutex
-		firstErr   error
-		written    int
-		inserted   int
-		skipped    int
-		done       int
+		mu           sync.Mutex
+		firstErr     error
+		written      int
+		inserted     int
+		skipped      int // no values to send
+		upToDate     int // values sent but all existed
+		done         int
+		lastPctLog   int // last percentage that triggered a progress bar
 	)
+
+	// progressBar builds a visual bar: [████████░░░░░░░░░░░░] 45%
+	progressBar := func(pct int) string {
+		const width = 30
+		filled := width * pct / 100
+		bar := strings.Repeat("█", filled) + strings.Repeat("░", width-filled)
+		return fmt.Sprintf("[%s] %3d%%", bar, pct)
+	}
 
 	pushCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -160,10 +190,13 @@ func pushValues(
 					mu.Lock()
 					done++
 					skipped++
-					d := done
+					pct := done * 100 / jobsTotal
+					if pct/10 > lastPctLog/10 || done == jobsTotal {
+						log.Printf("[push] %s  %d/%d señales  (enviados:%d nuevos:%d)",
+							progressBar(pct), done, jobsTotal, written, inserted)
+						lastPctLog = pct
+					}
 					mu.Unlock()
-					log.Printf("[push] %d/%d (%d%%) sqliteID=%.0f → ya al día",
-						d, jobsTotal, d*100/jobsTotal, j.sqliteID)
 					continue
 				}
 
@@ -187,15 +220,23 @@ func pushValues(
 				done++
 				written += ur.Sent
 				inserted += ur.Inserted
-				d := done
-				mu.Unlock()
-				if ur.Inserted == ur.Sent {
-					log.Printf("[push] %d/%d (%d%%) sqliteID=%.0f → oracleID=%.0f  %4d nuevos",
-						d, jobsTotal, d*100/jobsTotal, j.sqliteID, j.oracleID, ur.Inserted)
-				} else {
-					log.Printf("[push] %d/%d (%d%%) sqliteID=%.0f → oracleID=%.0f  %4d enviados, %d nuevos, %d existentes",
-						d, jobsTotal, d*100/jobsTotal, j.sqliteID, j.oracleID, ur.Sent, ur.Inserted, ur.Sent-ur.Inserted)
+				if ur.Inserted == 0 {
+					upToDate++
 				}
+
+				// Log individual line only when there are actual new inserts.
+				if ur.Inserted > 0 {
+					log.Printf("[push]   + oracleID=%.0f  %d nuevos (%d enviados)",
+						j.oracleID, ur.Inserted, ur.Sent)
+				}
+
+				pct := done * 100 / jobsTotal
+				if pct/10 > lastPctLog/10 || done == jobsTotal {
+					log.Printf("[push] %s  %d/%d señales  (enviados:%d nuevos:%d)",
+						progressBar(pct), done, jobsTotal, written, inserted)
+					lastPctLog = pct
+				}
+				mu.Unlock()
 			}
 		})
 	}
@@ -203,12 +244,9 @@ func pushValues(
 	wg.Wait()
 
 	// After wg.Wait() all goroutines have exited — safe to read without mutex.
-	pr := pushResult{sent: written, inserted: inserted}
+	pr := pushResult{sent: written, inserted: inserted, skipped: skipped, upToDate: upToDate}
 	if firstErr != nil {
 		return pr, firstErr
-	}
-	if skipped > 0 {
-		log.Printf("[push] %d señales ya al día en Oracle (sin nuevos valores)", skipped)
 	}
 	return pr, nil
 }
