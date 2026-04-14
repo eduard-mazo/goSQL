@@ -14,8 +14,10 @@ import (
 )
 
 // pushWorkers is the number of concurrent Oracle write goroutines.
-// Keep below Oracle MaxOpenConns (default 5) to leave room for other queries.
-const pushWorkers = 4
+// Set to 3 to stay well below Oracle MaxOpenConns (default 5): each worker
+// may hold a write transaction while simultaneously issuing a MaxFecha query,
+// so peak demand can be up to 2×workers connections briefly.
+const pushWorkers = 3
 
 // runPushToOracle transfers all data from a local SQLite database into Oracle.
 //
