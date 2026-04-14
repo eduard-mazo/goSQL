@@ -77,19 +77,27 @@ func runPushToOracle(ctx context.Context, sqlitePath string) error {
 	elapsed := time.Since(start)
 
 	// ── summary ──────────────────────────────────────────────────────────────
-	const sep = "────────────────────────────────────────────────"
+	const sep = "────────────────────────────────────────────────────"
 	log.Printf("[push] %s", sep)
 	if err != nil {
-		log.Printf("[push]  INTERRUMPIDO   %.1fs", elapsed.Seconds())
+		log.Printf("[push]  Estado:        INTERRUMPIDO")
+	} else if pr.inserted == 0 {
+		log.Printf("[push]  Estado:        AL DIA")
 	} else {
-		log.Printf("[push]  COMPLETADO     %.1fs", elapsed.Seconds())
+		log.Printf("[push]  Estado:        OK")
 	}
-	log.Printf("[push]  Señales:       %d total", len(remap))
-	log.Printf("[push]    con datos:   %d", len(remap)-pr.skipped)
-	log.Printf("[push]    ya al día:   %d (sin valores pendientes)", pr.skipped)
-	log.Printf("[push]  Valores:       %d enviados", pr.sent)
-	log.Printf("[push]    nuevos:      %d insertados", pr.inserted)
-	log.Printf("[push]    existentes:  %d (ya en Oracle)", pr.sent-pr.inserted)
+	log.Printf("[push]  Duración:      %.1fs", elapsed.Seconds())
+	log.Printf("[push]  Señales:       %d total, %d con nuevos datos, %d al día",
+		pr.signalsTotal, pr.signalsWithNew, pr.signalsUpToDate)
+	log.Printf("[push]  Insertados:    %d valores nuevos en Oracle", pr.inserted)
+	if !pr.minFecha.IsZero() {
+		log.Printf("[push]  Rango:         %s → %s",
+			pr.minFecha.Format("2006-01-02 15:04"),
+			pr.maxFecha.Format("2006-01-02 15:04"))
+	}
+	if err != nil {
+		log.Printf("[push]  Error:         %v", err)
+	}
 	log.Printf("[push] %s", sep)
 
 	if err != nil {
@@ -99,19 +107,19 @@ func runPushToOracle(ctx context.Context, sqlitePath string) error {
 }
 
 type pushResult struct {
-	sent     int
-	inserted int
-	skipped  int // signals with 0 pending values (already up to date)
-	upToDate int // signals with values sent but 0 new inserts
+	inserted       int       // rows actually inserted into Oracle
+	signalsTotal   int       // total signals processed
+	signalsWithNew int       // signals that had at least 1 new insert
+	signalsUpToDate int      // signals with no pending values at all
+	minFecha       time.Time // earliest FECHA among inserted values
+	maxFecha       time.Time // latest FECHA among inserted values
 }
 
 // pushValues sends SQLite values to Oracle using pushWorkers concurrent goroutines.
 // Only records with FECHA > Oracle MAX(FECHA) are sent (incremental, idempotent).
 //
-// Logging strategy:
-//   - Animated progress bar on a single line (overwritten in-place via \r)
-//   - Permanent log lines ONLY for signals with actual new inserts
-//   - Summary table printed at the end by the caller
+// Logging: animated progress bar (single \r-overwritten line). No per-signal output.
+// The caller prints the summary table using the returned pushResult.
 func pushValues(
 	ctx context.Context,
 	sqliteValorRepo *repository.ValorRepository,
@@ -129,13 +137,14 @@ func pushValues(
 	close(jobCh)
 
 	var (
-		mu       sync.Mutex
-		firstErr error
-		written  int
-		inserted int
-		skipped  int // no values to send
-		upToDate int // values sent but all existed
-		done     int
+		mu             sync.Mutex
+		firstErr       error
+		inserted       int
+		signalsWithNew int
+		signalsUpToDate int
+		done           int
+		minFecha       time.Time
+		maxFecha       time.Time
 	)
 
 	// renderBar overwrites the current terminal line with the progress bar.
@@ -145,10 +154,9 @@ func pushValues(
 		const width = 30
 		filled := width * pct / 100
 		bar := strings.Repeat("█", filled) + strings.Repeat("░", width-filled)
-		line := fmt.Sprintf("\r[push] [%s] %3d%%  %d/%d señales  (enviados:%d nuevos:%d)",
-			bar, pct, done, jobsTotal, written, inserted)
-		// Pad with spaces to clear any leftover characters from previous longer lines.
-		fmt.Fprintf(os.Stderr, "%-90s", line)
+		line := fmt.Sprintf("\r[push] [%s] %3d%%  %d/%d señales  nuevos:%d",
+			bar, pct, done, jobsTotal, inserted)
+		fmt.Fprintf(os.Stderr, "%-80s", line)
 	}
 
 	pushCtx, cancel := context.WithCancel(ctx)
@@ -162,7 +170,6 @@ func pushValues(
 					return
 				}
 
-				// Check how far Oracle already has data for this signal.
 				lastOracleTS, hasOracle, err := oracleValorRepo.MaxFechaBySenalID(pushCtx, j.oracleID)
 				if err != nil {
 					mu.Lock()
@@ -174,7 +181,6 @@ func pushValues(
 					return
 				}
 
-				// Read only the records Oracle doesn't have yet.
 				var valores []models.RocValor
 				if hasOracle {
 					valores, err = sqliteValorRepo.FindBySenalIDFrom(pushCtx, j.sqliteID, lastOracleTS)
@@ -194,7 +200,7 @@ func pushValues(
 				if len(valores) == 0 {
 					mu.Lock()
 					done++
-					skipped++
+					signalsUpToDate++
 					renderBar()
 					mu.Unlock()
 					continue
@@ -218,20 +224,19 @@ func pushValues(
 
 				mu.Lock()
 				done++
-				written += ur.Sent
 				inserted += ur.Inserted
-				if ur.Inserted == 0 {
-					upToDate++
-				}
-
-				// Print a permanent line above the bar only when there are actual new inserts.
 				if ur.Inserted > 0 {
-					// Clear the bar line, print the permanent log, then redraw the bar.
-					fmt.Fprintf(os.Stderr, "\r%-90s\r", "")
-					log.Printf("[push]   + oracleID=%.0f  %d nuevos (%d enviados)",
-						j.oracleID, ur.Inserted, ur.Sent)
+					signalsWithNew++
+					// Track date range from the batch timestamps.
+					for _, v := range valores {
+						if minFecha.IsZero() || v.Fecha.Before(minFecha) {
+							minFecha = v.Fecha
+						}
+						if v.Fecha.After(maxFecha) {
+							maxFecha = v.Fecha
+						}
+					}
 				}
-
 				renderBar()
 				mu.Unlock()
 			}
@@ -241,10 +246,16 @@ func pushValues(
 	wg.Wait()
 
 	// Clear the progress bar line so the summary starts clean.
-	fmt.Fprintf(os.Stderr, "\r%-90s\r", "")
+	fmt.Fprintf(os.Stderr, "\r%-80s\r", "")
 
-	// After wg.Wait() all goroutines have exited — safe to read without mutex.
-	pr := pushResult{sent: written, inserted: inserted, skipped: skipped, upToDate: upToDate}
+	pr := pushResult{
+		inserted:        inserted,
+		signalsTotal:    jobsTotal,
+		signalsWithNew:  signalsWithNew,
+		signalsUpToDate: signalsUpToDate,
+		minFecha:        minFecha,
+		maxFecha:        maxFecha,
+	}
 	if firstErr != nil {
 		return pr, firstErr
 	}
