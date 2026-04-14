@@ -126,3 +126,973 @@ PS C:\Users\emazoq\Documents\0dev\goSQL> .\roc-valores.exe --sqlite .\roc-valore
 2026/04/13 20:36:41 push.go:181: [push]  sqliteID=49 → oracleID=49   840 valores
 2026/04/13 20:36:46 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
 2026/04/13 20:36:46 push.go:181: [push]  sqliteID=59 → oracleID=59   840 valores
+2026/04/13 20:36:50 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:36:59 push.go:181: [push]  sqliteID=67 → oracleID=67   840 valores
+2026/04/13 20:37:03 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:37:03 push.go:181: [push]  sqliteID=87 → oracleID=87   840 valores
+2026/04/13 20:37:07 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:37:07 push.go:181: [push]  sqliteID=102 → oracleID=102   840 valores
+2026/04/13 20:37:11 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:37:11 push.go:181: [push]  sqliteID=23 → oracleID=23   840 valores
+2026/04/13 20:37:16 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:37:16 push.go:181: [push]  sqliteID=43 → oracleID=43   840 valores
+2026/04/13 20:37:21 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:37:21 push.go:181: [push]  sqliteID=46 → oracleID=46   840 valores
+2026/04/13 20:37:25 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:37:25 push.go:181: [push]  sqliteID=60 → oracleID=60   840 valores
+2026/04/13 20:37:30 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:37:30 push.go:181: [push]  sqliteID=75 → oracleID=75   840 valores
+2026/04/13 20:37:34 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:37:34 push.go:181: [push]  sqliteID=80 → oracleID=80   840 valores
+2026/04/13 20:37:38 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:37:38 push.go:181: [push]  sqliteID=103 → oracleID=103   840 valores
+2026/04/13 20:37:43 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:37:43 push.go:181: [push]  sqliteID=1 → oracleID=1   840 valores
+2026/04/13 20:37:47 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:37:47 push.go:181: [push]  sqliteID=4 → oracleID=4   840 valores
+2026/04/13 20:37:52 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:37:52 push.go:181: [push]  sqliteID=5 → oracleID=5   840 valores
+2026/04/13 20:37:57 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:37:57 push.go:181: [push]  sqliteID=11 → oracleID=11   840 valores
+2026/04/13 20:38:02 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:38:02 push.go:181: [push]  sqliteID=18 → oracleID=18   840 valores
+2026/04/13 20:38:07 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:38:07 push.go:181: [push]  sqliteID=51 → oracleID=51   840 valores
+2026/04/13 20:38:12 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:38:12 push.go:181: [push]  sqliteID=65 → oracleID=65   840 valores
+2026/04/13 20:38:16 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:38:17 push.go:181: [push]  sqliteID=66 → oracleID=66   840 valores
+2026/04/13 20:38:22 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:38:22 push.go:181: [push]  sqliteID=32 → oracleID=32   840 valores
+2026/04/13 20:38:27 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:38:27 push.go:181: [push]  sqliteID=76 → oracleID=76   840 valores
+2026/04/13 20:38:32 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:38:32 push.go:181: [push]  sqliteID=79 → oracleID=79   840 valores
+2026/04/13 20:38:37 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:38:37 push.go:181: [push]  sqliteID=92 → oracleID=92   840 valores
+2026/04/13 20:38:42 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:38:42 push.go:181: [push]  sqliteID=99 → oracleID=99   840 valores
+2026/04/13 20:38:47 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:38:47 push.go:181: [push]  sqliteID=106 → oracleID=106   840 valores
+2026/04/13 20:38:52 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:38:52 push.go:181: [push]  sqliteID=13 → oracleID=13   840 valores
+2026/04/13 20:38:57 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:38:57 push.go:181: [push]  sqliteID=35 → oracleID=35   840 valores
+2026/04/13 20:39:02 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:39:02 push.go:181: [push]  sqliteID=73 → oracleID=73   840 valores
+2026/04/13 20:39:08 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:39:08 push.go:181: [push]  sqliteID=94 → oracleID=94   840 valores
+2026/04/13 20:39:13 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:39:13 push.go:181: [push]  sqliteID=100 → oracleID=100   840 valores
+2026/04/13 20:39:18 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:39:18 push.go:181: [push]  sqliteID=6 → oracleID=6   840 valores
+2026/04/13 20:39:24 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:39:24 push.go:181: [push]  sqliteID=10 → oracleID=10   840 valores
+2026/04/13 20:39:29 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:39:29 push.go:181: [push]  sqliteID=62 → oracleID=62   840 valores
+2026/04/13 20:39:35 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:39:35 push.go:181: [push]  sqliteID=63 → oracleID=63   840 valores
+2026/04/13 20:39:40 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:39:40 push.go:181: [push]  sqliteID=96 → oracleID=96   840 valores
+2026/04/13 20:39:46 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:39:46 push.go:181: [push]  sqliteID=3 → oracleID=3   840 valores
+2026/04/13 20:39:51 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:39:51 push.go:181: [push]  sqliteID=26 → oracleID=26   840 valores
+2026/04/13 20:39:57 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:39:57 push.go:181: [push]  sqliteID=44 → oracleID=44   840 valores
+2026/04/13 20:40:02 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:40:02 push.go:181: [push]  sqliteID=58 → oracleID=58   840 valores
+2026/04/13 20:40:08 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:40:08 push.go:181: [push]  sqliteID=64 → oracleID=64   840 valores
+2026/04/13 20:40:14 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:40:14 push.go:181: [push]  sqliteID=68 → oracleID=68   840 valores
+2026/04/13 20:40:20 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:40:20 push.go:181: [push]  sqliteID=14 → oracleID=14   840 valores
+2026/04/13 20:40:26 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:40:26 push.go:181: [push]  sqliteID=37 → oracleID=37   840 valores
+2026/04/13 20:40:32 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:40:32 push.go:181: [push]  sqliteID=39 → oracleID=39   840 valores
+2026/04/13 20:40:37 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:40:37 push.go:181: [push]  sqliteID=41 → oracleID=41   840 valores
+2026/04/13 20:40:43 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:40:43 push.go:181: [push]  sqliteID=71 → oracleID=71   840 valores
+2026/04/13 20:40:49 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:40:49 push.go:181: [push]  sqliteID=78 → oracleID=78   840 valores
+2026/04/13 20:40:56 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:40:56 push.go:181: [push]  sqliteID=83 → oracleID=83   840 valores
+2026/04/13 20:41:02 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+2026/04/13 20:41:02 push.go:181: [push]  sqliteID=95 → oracleID=95   840 valores
+2026/04/13 20:41:02 push.go:68: [push] completado: 90720 valores → Oracle en 15626.0s
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:24:20 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:24:20 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:24:20' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:24:21 push.go:181: [push]  sqliteID=2 → oracleID=2   840 valores
+At line:1 char:12
++ 2026/04/13 16:24:21 push.go:181: [push]  sqliteID=2 → oracleID=2   84 ...
++            ~~~~~~~~
+Unexpected token '16:24:21' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:28:34 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:28:34 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:28:34' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:28:35 push.go:181: [push]  sqliteID=36 → oracleID=36   840 valores
+At line:1 char:12
++ 2026/04/13 16:28:35 push.go:181: [push]  sqliteID=36 → oracleID=36    ...
++            ~~~~~~~~
+Unexpected token '16:28:35' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:32:53 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:32:53 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:32:53' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:32:54 push.go:181: [push]  sqliteID=85 → oracleID=85   840 valores
+At line:1 char:12
++ 2026/04/13 16:32:54 push.go:181: [push]  sqliteID=85 → oracleID=85    ...
++            ~~~~~~~~
+Unexpected token '16:32:54' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:30 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:33:30 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:33:30' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:30 push.go:181: [push]  sqliteID=88 → oracleID=88   840 valores
+At line:1 char:12
++ 2026/04/13 16:33:30 push.go:181: [push]  sqliteID=88 → oracleID=88    ...
++            ~~~~~~~~
+Unexpected token '16:33:30' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:33 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:33:33 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:33:33' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:33 push.go:181: [push]  sqliteID=108 → oracleID=108   840 valores
+At line:1 char:12
++ 2026/04/13 16:33:33 push.go:181: [push]  sqliteID=108 → oracleID=108  ...
++            ~~~~~~~~
+Unexpected token '16:33:33' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:36 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:33:36 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:33:36' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:36 push.go:181: [push]  sqliteID=16 → oracleID=16   840 valores
+At line:1 char:12
++ 2026/04/13 16:33:36 push.go:181: [push]  sqliteID=16 → oracleID=16    ...
++            ~~~~~~~~
+Unexpected token '16:33:36' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:38 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:33:38 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:33:38' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:38 push.go:181: [push]  sqliteID=19 → oracleID=19   840 valores
+At line:1 char:12
++ 2026/04/13 16:33:38 push.go:181: [push]  sqliteID=19 → oracleID=19    ...
++            ~~~~~~~~
+Unexpected token '16:33:38' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:41 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:33:41 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:33:41' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:41 push.go:181: [push]  sqliteID=20 → oracleID=20   840 valores
+At line:1 char:12
++ 2026/04/13 16:33:41 push.go:181: [push]  sqliteID=20 → oracleID=20    ...
++            ~~~~~~~~
+Unexpected token '16:33:41' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:44 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:33:44 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:33:44' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:44 push.go:181: [push]  sqliteID=21 → oracleID=21   840 valores
+At line:1 char:12
++ 2026/04/13 16:33:44 push.go:181: [push]  sqliteID=21 → oracleID=21    ...
++            ~~~~~~~~
+Unexpected token '16:33:44' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:47 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:33:47 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:33:47' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:47 push.go:181: [push]  sqliteID=52 → oracleID=52   840 valores
+At line:1 char:12
++ 2026/04/13 16:33:47 push.go:181: [push]  sqliteID=52 → oracleID=52    ...
++            ~~~~~~~~
+Unexpected token '16:33:47' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:50 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:33:50 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:33:50' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:50 push.go:181: [push]  sqliteID=55 → oracleID=55   840 valores
+At line:1 char:12
++ 2026/04/13 16:33:50 push.go:181: [push]  sqliteID=55 → oracleID=55    ...
++            ~~~~~~~~
+Unexpected token '16:33:50' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:54 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:33:54 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:33:54' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:54 push.go:181: [push]  sqliteID=56 → oracleID=56   840 valores
+At line:1 char:12
++ 2026/04/13 16:33:54 push.go:181: [push]  sqliteID=56 → oracleID=56    ...
++            ~~~~~~~~
+Unexpected token '16:33:54' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:57 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:33:57 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:33:57' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:33:57 push.go:181: [push]  sqliteID=57 → oracleID=57   840 valores
+At line:1 char:12
++ 2026/04/13 16:33:57 push.go:181: [push]  sqliteID=57 → oracleID=57    ...
++            ~~~~~~~~
+Unexpected token '16:33:57' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:00 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:34:00 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:34:00' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:00 push.go:181: [push]  sqliteID=17 → oracleID=17   840 valores
+At line:1 char:12
++ 2026/04/13 16:34:00 push.go:181: [push]  sqliteID=17 → oracleID=17    ...
++            ~~~~~~~~
+Unexpected token '16:34:00' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:04 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:34:04 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:34:04' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:04 push.go:181: [push]  sqliteID=69 → oracleID=69   840 valores
+At line:1 char:12
++ 2026/04/13 16:34:04 push.go:181: [push]  sqliteID=69 → oracleID=69    ...
++            ~~~~~~~~
+Unexpected token '16:34:04' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:07 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:34:07 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:34:07' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:07 push.go:181: [push]  sqliteID=70 → oracleID=70   840 valores
+At line:1 char:12
++ 2026/04/13 16:34:07 push.go:181: [push]  sqliteID=70 → oracleID=70    ...
++            ~~~~~~~~
+Unexpected token '16:34:07' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:10 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:34:10 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:34:10' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:10 push.go:181: [push]  sqliteID=74 → oracleID=74   840 valores
+At line:1 char:12
++ 2026/04/13 16:34:10 push.go:181: [push]  sqliteID=74 → oracleID=74    ...
++            ~~~~~~~~
+Unexpected token '16:34:10' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:13 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:34:13 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:34:13' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:13 push.go:181: [push]  sqliteID=82 → oracleID=82   840 valores
+At line:1 char:12
++ 2026/04/13 16:34:13 push.go:181: [push]  sqliteID=82 → oracleID=82    ...
++            ~~~~~~~~
+Unexpected token '16:34:13' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:17 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:34:17 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:34:17' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:17 push.go:181: [push]  sqliteID=89 → oracleID=89   840 valores
+At line:1 char:12
++ 2026/04/13 16:34:17 push.go:181: [push]  sqliteID=89 → oracleID=89    ...
++            ~~~~~~~~
+Unexpected token '16:34:17' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:20 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:34:20 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:34:20' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:20 push.go:181: [push]  sqliteID=93 → oracleID=93   840 valores
+At line:1 char:12
++ 2026/04/13 16:34:20 push.go:181: [push]  sqliteID=93 → oracleID=93    ...
++            ~~~~~~~~
+Unexpected token '16:34:20' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:23 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:34:23 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:34:23' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:23 push.go:181: [push]  sqliteID=105 → oracleID=105   840 valores
+At line:1 char:12
++ 2026/04/13 16:34:23 push.go:181: [push]  sqliteID=105 → oracleID=105  ...
++            ~~~~~~~~
+Unexpected token '16:34:23' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:27 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:34:27 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:34:27' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:27 push.go:181: [push]  sqliteID=7 → oracleID=7   840 valores
+At line:1 char:12
++ 2026/04/13 16:34:27 push.go:181: [push]  sqliteID=7 → oracleID=7   84 ...
++            ~~~~~~~~
+Unexpected token '16:34:27' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:30 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:34:30 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:34:30' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:30 push.go:181: [push]  sqliteID=15 → oracleID=15   840 valores
+At line:1 char:12
++ 2026/04/13 16:34:30 push.go:181: [push]  sqliteID=15 → oracleID=15    ...
++            ~~~~~~~~
+Unexpected token '16:34:30' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:34 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:34:34 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:34:34' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:34 push.go:181: [push]  sqliteID=29 → oracleID=29   840 valores
+At line:1 char:12
++ 2026/04/13 16:34:34 push.go:181: [push]  sqliteID=29 → oracleID=29    ...
++            ~~~~~~~~
+Unexpected token '16:34:34' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:37 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:34:37 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:34:37' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:37 push.go:181: [push]  sqliteID=30 → oracleID=30   840 valores
+At line:1 char:12
++ 2026/04/13 16:34:37 push.go:181: [push]  sqliteID=30 → oracleID=30    ...
++            ~~~~~~~~
+Unexpected token '16:34:37' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:41 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:34:41 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:34:41' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:41 push.go:181: [push]  sqliteID=34 → oracleID=34   840 valores
+At line:1 char:12
++ 2026/04/13 16:34:41 push.go:181: [push]  sqliteID=34 → oracleID=34    ...
++            ~~~~~~~~
+Unexpected token '16:34:41' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:45 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:34:45 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:34:45' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:45 push.go:181: [push]  sqliteID=40 → oracleID=40   840 valores
+At line:1 char:12
++ 2026/04/13 16:34:45 push.go:181: [push]  sqliteID=40 → oracleID=40    ...
++            ~~~~~~~~
+Unexpected token '16:34:45' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:49 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:34:49 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:34:49' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:49 push.go:181: [push]  sqliteID=42 → oracleID=42   840 valores
+At line:1 char:12
++ 2026/04/13 16:34:49 push.go:181: [push]  sqliteID=42 → oracleID=42    ...
++            ~~~~~~~~
+Unexpected token '16:34:49' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:52 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:34:52 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:34:52' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:52 push.go:181: [push]  sqliteID=54 → oracleID=54   840 valores
+At line:1 char:12
++ 2026/04/13 16:34:52 push.go:181: [push]  sqliteID=54 → oracleID=54    ...
++            ~~~~~~~~
+Unexpected token '16:34:52' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:55 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:34:55 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:34:55' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:55 push.go:181: [push]  sqliteID=9 → oracleID=9   840 valores
+At line:1 char:12
++ 2026/04/13 16:34:55 push.go:181: [push]  sqliteID=9 → oracleID=9   84 ...
++            ~~~~~~~~
+Unexpected token '16:34:55' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:59 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:34:59 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:34:59' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:34:59 push.go:181: [push]  sqliteID=28 → oracleID=28   840 valores
+At line:1 char:12
++ 2026/04/13 16:34:59 push.go:181: [push]  sqliteID=28 → oracleID=28    ...
++            ~~~~~~~~
+Unexpected token '16:34:59' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:03 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:35:03 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:35:03' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:03 push.go:181: [push]  sqliteID=45 → oracleID=45   840 valores
+At line:1 char:12
++ 2026/04/13 16:35:03 push.go:181: [push]  sqliteID=45 → oracleID=45    ...
++            ~~~~~~~~
+Unexpected token '16:35:03' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:06 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:35:06 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:35:06' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:06 push.go:181: [push]  sqliteID=50 → oracleID=50   840 valores
+At line:1 char:12
++ 2026/04/13 16:35:06 push.go:181: [push]  sqliteID=50 → oracleID=50    ...
++            ~~~~~~~~
+Unexpected token '16:35:06' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:10 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:35:10 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:35:10' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:10 push.go:181: [push]  sqliteID=81 → oracleID=81   840 valores
+At line:1 char:12
++ 2026/04/13 16:35:10 push.go:181: [push]  sqliteID=81 → oracleID=81    ...
++            ~~~~~~~~
+Unexpected token '16:35:10' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:13 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:35:13 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:35:13' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:14 push.go:181: [push]  sqliteID=91 → oracleID=91   840 valores
+At line:1 char:12
++ 2026/04/13 16:35:14 push.go:181: [push]  sqliteID=91 → oracleID=91    ...
++            ~~~~~~~~
+Unexpected token '16:35:14' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:17 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:35:17 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:35:17' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:17 push.go:181: [push]  sqliteID=97 → oracleID=97   840 valores
+At line:1 char:12
++ 2026/04/13 16:35:17 push.go:181: [push]  sqliteID=97 → oracleID=97    ...
++            ~~~~~~~~
+Unexpected token '16:35:17' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:20 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:35:20 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:35:20' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:20 push.go:181: [push]  sqliteID=101 → oracleID=101   840 valores
+At line:1 char:12
++ 2026/04/13 16:35:20 push.go:181: [push]  sqliteID=101 → oracleID=101  ...
++            ~~~~~~~~
+Unexpected token '16:35:20' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:24 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:35:24 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:35:24' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:24 push.go:181: [push]  sqliteID=8 → oracleID=8   840 valores
+At line:1 char:12
++ 2026/04/13 16:35:24 push.go:181: [push]  sqliteID=8 → oracleID=8   84 ...
++            ~~~~~~~~
+Unexpected token '16:35:24' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:28 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:35:28 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:35:28' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:28 push.go:181: [push]  sqliteID=12 → oracleID=12   840 valores
+At line:1 char:12
++ 2026/04/13 16:35:28 push.go:181: [push]  sqliteID=12 → oracleID=12    ...
++            ~~~~~~~~
+Unexpected token '16:35:28' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:32 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:35:32 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:35:32' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:32 push.go:181: [push]  sqliteID=38 → oracleID=38   840 valores
+At line:1 char:12
++ 2026/04/13 16:35:32 push.go:181: [push]  sqliteID=38 → oracleID=38    ...
++            ~~~~~~~~
+Unexpected token '16:35:32' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:36 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:35:36 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:35:36' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:36 push.go:181: [push]  sqliteID=53 → oracleID=53   840 valores
+At line:1 char:12
++ 2026/04/13 16:35:36 push.go:181: [push]  sqliteID=53 → oracleID=53    ...
++            ~~~~~~~~
+Unexpected token '16:35:36' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:39 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:35:39 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:35:39' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:39 push.go:181: [push]  sqliteID=77 → oracleID=77   840 valores
+At line:1 char:12
++ 2026/04/13 16:35:39 push.go:181: [push]  sqliteID=77 → oracleID=77    ...
++            ~~~~~~~~
+Unexpected token '16:35:39' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:43 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:35:43 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:35:43' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:43 push.go:181: [push]  sqliteID=107 → oracleID=107   840 valores
+At line:1 char:12
++ 2026/04/13 16:35:43 push.go:181: [push]  sqliteID=107 → oracleID=107  ...
++            ~~~~~~~~
+Unexpected token '16:35:43' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:47 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:35:47 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:35:47' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:47 push.go:181: [push]  sqliteID=22 → oracleID=22   840 valores
+At line:1 char:12
++ 2026/04/13 16:35:47 push.go:181: [push]  sqliteID=22 → oracleID=22    ...
++            ~~~~~~~~
+Unexpected token '16:35:47' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:51 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:35:51 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:35:51' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:51 push.go:181: [push]  sqliteID=31 → oracleID=31   840 valores
+At line:1 char:12
++ 2026/04/13 16:35:51 push.go:181: [push]  sqliteID=31 → oracleID=31    ...
++            ~~~~~~~~
+Unexpected token '16:35:51' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:55 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:35:55 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:35:55' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:55 push.go:181: [push]  sqliteID=33 → oracleID=33   840 valores
+At line:1 char:12
++ 2026/04/13 16:35:55 push.go:181: [push]  sqliteID=33 → oracleID=33    ...
++            ~~~~~~~~
+Unexpected token '16:35:55' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:59 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:35:59 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:35:59' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:35:59 push.go:181: [push]  sqliteID=48 → oracleID=48   840 valores
+At line:1 char:12
++ 2026/04/13 16:35:59 push.go:181: [push]  sqliteID=48 → oracleID=48    ...
++            ~~~~~~~~
+Unexpected token '16:35:59' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:36:03 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:36:03 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:36:03' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:36:03 push.go:181: [push]  sqliteID=61 → oracleID=61   840 valores
+At line:1 char:12
++ 2026/04/13 16:36:03 push.go:181: [push]  sqliteID=61 → oracleID=61    ...
++            ~~~~~~~~
+Unexpected token '16:36:03' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:36:07 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:36:07 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:36:07' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:36:07 push.go:181: [push]  sqliteID=84 → oracleID=84   840 valores
+At line:1 char:12
++ 2026/04/13 16:36:07 push.go:181: [push]  sqliteID=84 → oracleID=84    ...
++            ~~~~~~~~
+Unexpected token '16:36:07' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:36:11 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:36:11 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:36:11' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:36:14 push.go:181: [push]  sqliteID=104 → oracleID=104   840 valores
+At line:1 char:12
++ 2026/04/13 16:36:14 push.go:181: [push]  sqliteID=104 → oracleID=104  ...
++            ~~~~~~~~
+Unexpected token '16:36:14' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:36:19 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:36:19 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:36:19' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:36:19 push.go:181: [push]  sqliteID=25 → oracleID=25   840 valores
+At line:1 char:12
++ 2026/04/13 16:36:19 push.go:181: [push]  sqliteID=25 → oracleID=25    ...
++            ~~~~~~~~
+Unexpected token '16:36:19' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:36:23 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:36:23 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:36:23' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:36:23 push.go:181: [push]  sqliteID=27 → oracleID=27   840 valores
+At line:1 char:12
++ 2026/04/13 16:36:23 push.go:181: [push]  sqliteID=27 → oracleID=27    ...
++            ~~~~~~~~
+Unexpected token '16:36:23' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:36:28 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:36:28 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:36:28' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:36:28 push.go:181: [push]  sqliteID=72 → oracleID=72   840 valores
+At line:1 char:12
++ 2026/04/13 16:36:28 push.go:181: [push]  sqliteID=72 → oracleID=72    ...
++            ~~~~~~~~
+Unexpected token '16:36:28' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:36:32 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:36:32 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:36:32' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:36:32 push.go:181: [push]  sqliteID=86 → oracleID=86   840 valores
+At line:1 char:12
++ 2026/04/13 16:36:32 push.go:181: [push]  sqliteID=86 → oracleID=86    ...
++            ~~~~~~~~
+Unexpected token '16:36:32' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:36:37 valorRepository.go:89: [repo] UpsertBatch → 840 valores procesados
+At line:1 char:12
++ 2026/04/13 16:36:37 valorRepository.go:89: [repo] UpsertBatch → 840 v ...
++            ~~~~~~~~
+Unexpected token '16:36:37' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+PS C:\Users\emazoq\Documents\0dev\goSQL> 2026/04/13 16:36:37 push.go:181: [push]  sqliteID=90 → oracleID=90   840 valores
