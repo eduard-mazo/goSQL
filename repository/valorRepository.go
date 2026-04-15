@@ -220,68 +220,6 @@ func (r *ValorRepository) MaxFechaBySenalID(ctx context.Context, senalID float64
 	return n.Time, true, nil
 }
 
-// MinFechaBySenalID returns the MIN(FECHA) stored for a given SENAL_ID.
-// Returns (zero, false, nil) when there are no rows yet.
-func (r *ValorRepository) MinFechaBySenalID(ctx context.Context, senalID float64) (time.Time, bool, error) {
-	if r.db.Dialect == db.DialectSQLite {
-		var s sql.NullString
-		err := r.db.QueryRowContext(ctx,
-			`SELECT MIN(FECHA) FROM ROC_VALORES WHERE SENAL_ID = ?`, senalID,
-		).Scan(&s)
-		if err != nil {
-			return time.Time{}, false, fmt.Errorf("ValorRepo.MinFechaBySenalID: %w", err)
-		}
-		if !s.Valid || s.String == "" {
-			return time.Time{}, false, nil
-		}
-		t, err := time.Parse(time.RFC3339, s.String)
-		if err != nil {
-			return time.Time{}, false, fmt.Errorf("ValorRepo.MinFechaBySenalID parse %q: %w", s.String, err)
-		}
-		return t.Local(), true, nil
-	}
-
-	var n sql.NullTime
-	err := r.db.QueryRowContext(ctx,
-		`SELECT MIN(FECHA) FROM HEPMGA.ROC_VALORES WHERE SENAL_ID = :senal_id`,
-		sql.Named("senal_id", senalID),
-	).Scan(&n)
-	if err != nil {
-		return time.Time{}, false, fmt.Errorf("ValorRepo.MinFechaBySenalID: %w", err)
-	}
-	if !n.Valid {
-		return time.Time{}, false, nil
-	}
-	return n.Time, true, nil
-}
-
-// FindBySenalIDBefore returns values for a signal with FECHA strictly before `before`,
-// ordered by FECHA ascending. Used for backfilling historical data.
-func (r *ValorRepository) FindBySenalIDBefore(ctx context.Context, senalID float64, before time.Time) ([]models.RocValor, error) {
-	tbl := valoresTable(r.db.Dialect)
-	var (
-		rows *sql.Rows
-		err  error
-	)
-	if r.db.Dialect == db.DialectSQLite {
-		rows, err = r.db.QueryContext(ctx,
-			`SELECT FECHA, SYNCED_AT, SENAL_ID, VALOR FROM `+tbl+
-				` WHERE SENAL_ID = ? AND FECHA < ? ORDER BY FECHA ASC`,
-			senalID, before.UTC().Format(time.RFC3339))
-	} else {
-		rows, err = r.db.QueryContext(ctx,
-			`SELECT FECHA, SYNCED_AT, SENAL_ID, VALOR FROM `+tbl+
-				` WHERE SENAL_ID = :senal_id AND FECHA < :before ORDER BY FECHA ASC`,
-			sql.Named("senal_id", senalID),
-			sql.Named("before", before))
-	}
-	if err != nil {
-		return nil, fmt.Errorf("ValorRepo.FindBySenalIDBefore: %w", err)
-	}
-	defer rows.Close()
-	return r.scanValores(rows)
-}
-
 // FindBySenalIDFrom returns values for a signal with FECHA strictly after `after`,
 // ordered by FECHA ascending. Used for incremental SQLite → Oracle push.
 func (r *ValorRepository) FindBySenalIDFrom(ctx context.Context, senalID float64, after time.Time) ([]models.RocValor, error) {
