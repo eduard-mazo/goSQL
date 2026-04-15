@@ -116,7 +116,10 @@ type pushResult struct {
 }
 
 // pushValues sends SQLite values to Oracle using pushWorkers concurrent goroutines.
-// Only records with FECHA > Oracle MAX(FECHA) are sent (incremental, idempotent).
+// For each signal it checks two gaps:
+//   - Forward: FECHA > Oracle MAX(FECHA) — new data appended since last push.
+//   - Backward: FECHA < Oracle MIN(FECHA) — historical data backfilled into SQLite.
+// Both are sent via UpsertBatch (idempotent MERGE / ON CONFLICT DO NOTHING).
 //
 // Logging: animated progress bar (single \r-overwritten line). No per-signal output.
 // The caller prints the summary table using the returned pushResult.
@@ -170,7 +173,8 @@ func pushValues(
 					return
 				}
 
-				lastOracleTS, hasOracle, err := oracleValorRepo.MaxFechaBySenalID(pushCtx, j.oracleID)
+				// Query Oracle MIN and MAX in one pass for this signal.
+				oracleMax, hasOracle, err := oracleValorRepo.MaxFechaBySenalID(pushCtx, j.oracleID)
 				if err != nil {
 					mu.Lock()
 					if firstErr == nil {
@@ -182,19 +186,58 @@ func pushValues(
 				}
 
 				var valores []models.RocValor
-				if hasOracle {
-					valores, err = sqliteValorRepo.FindBySenalIDFrom(pushCtx, j.sqliteID, lastOracleTS)
-				} else {
+				if !hasOracle {
+					// Oracle has no data at all — send everything from SQLite.
 					valores, err = sqliteValorRepo.FindBySenalID(pushCtx, j.sqliteID)
-				}
-				if err != nil {
-					mu.Lock()
-					if firstErr == nil {
-						firstErr = fmt.Errorf("sqlite read sqliteID=%.0f: %w", j.sqliteID, err)
-						cancel()
+					if err != nil {
+						mu.Lock()
+						if firstErr == nil {
+							firstErr = fmt.Errorf("sqlite read sqliteID=%.0f: %w", j.sqliteID, err)
+							cancel()
+						}
+						mu.Unlock()
+						return
 					}
-					mu.Unlock()
-					return
+				} else {
+					// Forward gap: FECHA > Oracle MAX (new data appended).
+					forward, err := sqliteValorRepo.FindBySenalIDFrom(pushCtx, j.sqliteID, oracleMax)
+					if err != nil {
+						mu.Lock()
+						if firstErr == nil {
+							firstErr = fmt.Errorf("sqlite read forward sqliteID=%.0f: %w", j.sqliteID, err)
+							cancel()
+						}
+						mu.Unlock()
+						return
+					}
+
+					// Backward gap: FECHA < Oracle MIN (historical backfill).
+					oracleMin, hasMin, err := oracleValorRepo.MinFechaBySenalID(pushCtx, j.oracleID)
+					if err != nil {
+						mu.Lock()
+						if firstErr == nil {
+							firstErr = fmt.Errorf("oracle MinFecha oracleID=%.0f: %w", j.oracleID, err)
+							cancel()
+						}
+						mu.Unlock()
+						return
+					}
+
+					var backward []models.RocValor
+					if hasMin {
+						backward, err = sqliteValorRepo.FindBySenalIDBefore(pushCtx, j.sqliteID, oracleMin)
+						if err != nil {
+							mu.Lock()
+							if firstErr == nil {
+								firstErr = fmt.Errorf("sqlite read backward sqliteID=%.0f: %w", j.sqliteID, err)
+								cancel()
+							}
+							mu.Unlock()
+							return
+						}
+					}
+
+					valores = append(backward, forward...)
 				}
 
 				if len(valores) == 0 {
@@ -227,7 +270,6 @@ func pushValues(
 				inserted += ur.Inserted
 				if ur.Inserted > 0 {
 					signalsWithNew++
-					// Track date range from the batch timestamps.
 					for _, v := range valores {
 						if minFecha.IsZero() || v.Fecha.Before(minFecha) {
 							minFecha = v.Fecha
