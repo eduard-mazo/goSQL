@@ -36,18 +36,25 @@ func main() {
 
 	ctx := context.Background()
 
-	// ── push: needs both SQLite (source) and Oracle (destination) ───────────
-	if cmd == "push" {
+	// ── push / backfill: need both SQLite (source) and Oracle (destination) ──
+	if cmd == "push" || cmd == "backfill" {
 		if *sqlitePath == "" {
-			log.Fatalf("'push' requiere --sqlite <path>  (fuente de datos SQLite)")
+			log.Fatalf("'%s' requiere --sqlite <path>  (fuente de datos SQLite)", cmd)
 		}
-		if err := runPushToOracle(ctx, *sqlitePath); err != nil {
-			log.Fatalf("push: %v", err)
+		var cmdErr error
+		switch cmd {
+		case "push":
+			cmdErr = runPushToOracle(ctx, *sqlitePath)
+		case "backfill":
+			cmdErr = runBackfillToOracle(ctx, *sqlitePath)
+		}
+		if cmdErr != nil {
+			log.Fatalf("%s: %v", cmd, cmdErr)
 		}
 		return
 	}
 
-	// ── database (single backend for seed / sync / run) ───────────────────
+	// ── database (single backend for seed / sync / serve / run) ──────────
 	var database *db.DB
 
 	if *sqlitePath != "" {
@@ -70,6 +77,18 @@ func main() {
 
 	if err := database.HealthCheck(ctx); err != nil {
 		log.Fatalf("healthcheck: %v", err)
+	}
+
+	// ── serve: dashboard HTTP server (no collector needed) ──────────────────
+	if cmd == "serve" {
+		addr := ":8080"
+		if len(args) > 1 {
+			addr = args[1] // allow: serve :3000
+		}
+		if err := runServe(ctx, database, addr); err != nil {
+			log.Fatalf("serve: %v", err)
+		}
+		return
 	}
 
 	c, err := collector.New(database, "config.yaml")

@@ -27,7 +27,7 @@ LDFLAGS  := -s -w \
             -X main.commit=$(COMMIT) \
             -X main.buildTime=$(BUILD_TS)
 
-PKGS     := $(shell go list ./... 2>/dev/null)
+PKGS     = $(shell go list ./... 2>/dev/null)
 
 # SQLite database path used by the sqlite-* targets (override as needed)
 SQLITE_DB ?= ./roc.db
@@ -37,7 +37,8 @@ SQLITE_DB ?= ./roc.db
 
 .PHONY: all build build-race \
         run seed sync \
-        run-sqlite seed-sqlite sync-sqlite push-to-oracle \
+        run-sqlite seed-sqlite sync-sqlite push-to-oracle backfill-oracle \
+        serve serve-oracle \
         dev \
         test test-verbose test-race test-cover \
         vet fmt fmt-check lint staticcheck check \
@@ -93,6 +94,18 @@ sync-sqlite: build
 ## push-to-oracle: empuja datos de SQLite (SQLITE_DB) a Oracle (requiere .env)
 push-to-oracle: build
 	$(TARGET) --sqlite $(SQLITE_DB) push
+
+## backfill-oracle: envía datos históricos de SQLite (SQLITE_DB) a Oracle (requiere .env)
+backfill-oracle: build
+	$(TARGET) --sqlite $(SQLITE_DB) backfill
+
+## serve: dashboard web — sirve la API y frontend en http://localhost:8080
+serve: build
+	$(TARGET) --sqlite $(SQLITE_DB) serve
+
+## serve-oracle: dashboard web con Oracle como backend
+serve-oracle: build
+	$(TARGET) serve
 
 ## dev: compila y corre sin generar binario (Oracle, subcomando run)
 dev:

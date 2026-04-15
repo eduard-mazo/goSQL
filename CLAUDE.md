@@ -38,12 +38,37 @@ Run subcommands directly:
 ./bin/roc-valores --sqlite ./roc.db seed
 ./bin/roc-valores --sqlite ./roc.db sync
 ./bin/roc-valores --sqlite ./roc.db run
+
+# SQLite → Oracle transfer (requires both --sqlite and .env)
+./bin/roc-valores --sqlite ./roc.db push       # forward: FECHA > Oracle MAX
+./bin/roc-valores --sqlite ./roc.db backfill   # backward: FECHA < Oracle MIN
+
+# Dashboard web server
+./bin/roc-valores --sqlite ./roc.db serve          # SQLite backend, http://localhost:8080
+./bin/roc-valores --sqlite ./roc.db serve :3000     # custom port
+./bin/roc-valores serve                             # Oracle backend
 ```
+
+### CLI subcommands reference
+
+| Command    | Backend needed     | Description                                                       |
+|------------|--------------------|-------------------------------------------------------------------|
+| `seed`     | Oracle or SQLite   | Populate `ROC_SENALES` from `config.yaml` and exit                |
+| `sync`     | Oracle or SQLite   | Seed + one delta-sync cycle (poll devices via Modbus) and exit    |
+| `run`      | Oracle or SQLite   | Daemon mode: seed, sync now, then re-sync every hour at :05       |
+| `push`     | `--sqlite` + `.env`| **Forward sync** — send SQLite rows with `FECHA > Oracle MAX(FECHA)` to Oracle. Covers new data collected since last push. |
+| `backfill` | `--sqlite` + `.env`| **Backward sync** — send SQLite rows with `FECHA < Oracle MIN(FECHA)` to Oracle. Covers historical data migrated into SQLite from older sources (e.g. `modbus.db`). |
+| `serve`    | Oracle or SQLite   | **Dashboard** — starts HTTP server with REST API + web frontend on `:8080` (default). Optional port arg: `serve :3000`. |
+
+Both `push` and `backfill` are idempotent (MERGE / ON CONFLICT DO NOTHING) and safe to re-run.
 
 Run without building:
 ```bash
 go run ./cmd/main.go seed
 go run ./cmd/main.go --sqlite ./roc.db sync
+go run ./cmd/main.go --sqlite ./roc.db push
+go run ./cmd/main.go --sqlite ./roc.db backfill
+go run ./cmd/main.go --sqlite ./roc.db serve
 ```
 
 ## Configuration
@@ -73,7 +98,9 @@ modbus/          → Modbus TCP client (FC03 only), float32 decoders, ROC date/t
 collector/       → Station config types (YAML), Collector struct, delta-sync logic
 models/          → RocSenal, RocValor structs + S() / F() pointer helpers
 repository/      → Dialect-aware CRUD: SenalRepository, ValorRepository (Oracle + SQLite)
-cmd/             → Entry point: [--sqlite PATH] seed | sync | run (daemon)
+api/             → REST/JSON HTTP server (read-only): stations, signals, values, overview, stats
+web/             → Static frontend dashboard (HTML/CSS/JS, Chart.js) served by api.Server
+cmd/             → Entry point: [--sqlite PATH] seed | sync | push | backfill | serve | run
 config.yaml      → 9 ROC stations (some with multiple medidores)
 ```
 
