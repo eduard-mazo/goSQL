@@ -29,19 +29,23 @@ LDFLAGS  := -s -w \
 
 PKGS     = $(shell go list ./... 2>/dev/null)
 
-# SQLite database path used by the sqlite-* targets (override as needed)
+# SQLite database path (override: make serve SQLITE_DB=./other.db)
 SQLITE_DB ?= ./roc.db
 
-# ── targets por defecto ───────────────────────────────────────────────────────
-.DEFAULT_GOAL := help
+# API server port (override: make serve API_PORT=3000)
+API_PORT ?= 8080
 
-# Dashboard frontend (Vue 3 + Vite) — must have Node >= 18 and npm
+# Dashboard (Vue 3 + Vite) — requires Node >= 18
 DASHBOARD_DIR := ./web-dashboard
+
+# ── targets ──────────────────────────────────────────────────────────────────
+.DEFAULT_GOAL := help
 
 .PHONY: all build build-race \
         run seed sync \
         run-sqlite seed-sqlite sync-sqlite push-to-oracle backfill-oracle \
-        serve serve-oracle serve-dev dashboard-build dashboard-dev dashboard-install \
+        serve serve-oracle \
+        dashboard-install dashboard-dev dashboard-build \
         dev \
         test test-verbose test-race test-cover \
         vet fmt fmt-check lint staticcheck check \
@@ -102,21 +106,15 @@ push-to-oracle: build
 backfill-oracle: build
 	$(TARGET) --sqlite $(SQLITE_DB) backfill
 
-## serve: API + built frontend — SQLite (build dashboard first with: make dashboard-build)
+# ── serve (API REST) ─────────────────────────────────────────────────────────
+
+## serve: API REST con SQLite (API_PORT=8080, SQLITE_DB=./roc.db)
 serve: build
-	$(TARGET) --sqlite $(SQLITE_DB) serve
+	$(TARGET) --sqlite $(SQLITE_DB) serve :$(API_PORT)
 
-## serve-oracle: API + built frontend — Oracle (requires .env)
+## serve-oracle: API REST con Oracle (requiere .env, API_PORT=8080)
 serve-oracle: build
-	$(TARGET) serve
-
-## serve-dev: API backend only for Vue dev server (Vite proxies /api → :8080)
-serve-dev: build
-	$(TARGET) --sqlite $(SQLITE_DB) serve :8080
-
-## serve-full: instala deps, compila dashboard y lanza (SQLite, todo-en-uno)
-serve-full: build dashboard-build
-	$(TARGET) --sqlite $(SQLITE_DB) serve
+	$(TARGET) serve :$(API_PORT)
 
 # ── dashboard (Vue 3 + Vite) ─────────────────────────────────────────────────
 
@@ -125,12 +123,12 @@ dashboard-install:
 	@echo "==> npm install (web-dashboard)"
 	cd $(DASHBOARD_DIR) && npm install
 
-## dashboard-dev: inicia Vite dev server en :5173 (requiere serve-dev en paralelo)
+## dashboard-dev: Vite dev server :5173 — proxy /api → localhost:API_PORT
 dashboard-dev:
-	@echo "==> vite dev server (http://localhost:5173)"
-	cd $(DASHBOARD_DIR) && npm run dev
+	@echo "==> vite dev (proxy /api → http://localhost:$(API_PORT))"
+	cd $(DASHBOARD_DIR) && VITE_API_PORT=$(API_PORT) npm run dev
 
-## dashboard-build: compila el dashboard Vue → web-dashboard/dist/
+## dashboard-build: compila Vue → web-dashboard/dist/ (para deploy estático)
 dashboard-build:
 	@echo "==> dashboard build"
 	cd $(DASHBOARD_DIR) && npm run build
@@ -221,7 +219,7 @@ deps-list:
 
 # ── limpieza ──────────────────────────────────────────────────────────────────
 
-## clean: elimina binarios, artefactos de cobertura y dist del dashboard
+## clean: elimina binarios, cobertura y dist del dashboard
 clean:
 	@echo "==> clean"
 	@rm -rf $(BUILD_DIR) cover.out cover.html $(DASHBOARD_DIR)/dist
@@ -239,10 +237,16 @@ help:
 		sed 's/## //' | \
 		awk -F: '{printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
 	@echo ""
-	@echo "  Override SQLite path:  make run-sqlite SQLITE_DB=/path/to/file.db"
+	@echo "  Variables:"
+	@echo "    SQLITE_DB=./roc.db      ruta a la base SQLite"
+	@echo "    API_PORT=8080           puerto del servidor API"
 	@echo ""
-	@echo "  ── Dashboard workflows ──"
-	@echo "  Development (hot-reload):   terminal 1: make serve-dev"
-	@echo "                              terminal 2: make dashboard-dev"
-	@echo "  Production (single server): make serve-full"
+	@echo "  ── Dashboard ──"
+	@echo "  Desarrollo:   terminal 1: make serve"
+	@echo "                terminal 2: make dashboard-dev"
+	@echo "  Puerto custom: make serve API_PORT=3000"
+	@echo "                 make dashboard-dev API_PORT=3000"
+	@echo ""
+	@echo "  CLI directo:"
+	@echo "    ./bin/roc-valores --sqlite ./roc-valores.db serve :3000"
 	@echo ""

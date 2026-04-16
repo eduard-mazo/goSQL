@@ -5,30 +5,21 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 
 	"goSQL/api"
 	"goSQL/db"
 )
 
-// runServe starts the dashboard HTTP server.
-// It opens the database (Oracle or SQLite) and serves:
-//   - /api/*   — JSON endpoints (stations, signals, values, overview, stats)
-//   - /*       — static frontend (if a dist/web directory is found)
+// runServe starts the REST API server.
 //
-// In development the Vue app runs on its own Vite dev server and proxies
-// /api calls to this backend, so no static directory is needed.
+// Usage:  roc-valores [--sqlite path] serve [:port]
+//
+// The server exposes JSON endpoints under /api/* and nothing else.
+// The Vue dashboard (web-dashboard/) runs separately — either via
+// Vite dev server during development or as a standalone static deploy.
 func runServe(ctx context.Context, database *db.DB, addr string) error {
-	webDir := findWebDir()
-	if webDir != "" {
-		log.Printf("[serve] static files → %s", webDir)
-	} else {
-		log.Println("[serve] no static directory found — API-only mode")
-		log.Println("[serve] (run 'npm run build' inside web-dashboard/ to generate dist/)")
-	}
-
-	srv := api.New(database, webDir)
+	srv := api.New(database)
 
 	// Graceful shutdown on SIGINT / SIGTERM.
 	srvCtx, cancel := context.WithCancel(ctx)
@@ -41,33 +32,4 @@ func runServe(ctx context.Context, database *db.DB, addr string) error {
 	}()
 
 	return srv.ListenAndServe(srvCtx, addr)
-}
-
-// findWebDir probes several locations for the frontend build output.
-// Priority: web-dashboard/dist (Vue build) → web/ (legacy vanilla).
-func findWebDir() string {
-	var candidates []string
-
-	// cwd-relative
-	candidates = append(candidates,
-		filepath.Join("web-dashboard", "dist"), // Vue build output
-		"web", // legacy vanilla dashboard
-	)
-
-	// next to the executable
-	if exe, err := os.Executable(); err == nil {
-		dir := filepath.Dir(exe)
-		candidates = append(candidates,
-			filepath.Join(dir, "web-dashboard", "dist"),
-			filepath.Join(dir, "web"),
-		)
-	}
-
-	for _, c := range candidates {
-		if info, err := os.Stat(c); err == nil && info.IsDir() {
-			abs, _ := filepath.Abs(c)
-			return abs
-		}
-	}
-	return ""
 }

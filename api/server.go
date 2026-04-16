@@ -25,11 +25,9 @@ type Server struct {
 	mux       *http.ServeMux
 }
 
-// New creates a Server, wires all routes, and returns it.
-// webDir is the path to the static frontend files (Vue dist/ or legacy web/).
-// If webDir is empty the server operates in API-only mode (for development
-// with the Vite dev server proxying /api calls).
-func New(database *db.DB, webDir string) *Server {
+// New creates a Server, wires the API routes, and returns it.
+// The server is API-only — the Vue dashboard runs separately.
+func New(database *db.DB) *Server {
 	s := &Server{
 		db:        database,
 		senalRepo: repository.NewSenalRepository(database),
@@ -37,36 +35,11 @@ func New(database *db.DB, webDir string) *Server {
 		mux:       http.NewServeMux(),
 	}
 
-	// API routes
 	s.mux.HandleFunc("GET /api/stations", s.handleStations)
 	s.mux.HandleFunc("GET /api/signals", s.handleSignals)
 	s.mux.HandleFunc("GET /api/values", s.handleValues)
 	s.mux.HandleFunc("GET /api/overview", s.handleOverview)
 	s.mux.HandleFunc("GET /api/stats", s.handleStats)
-
-	// Static frontend (SPA with history-mode fallback)
-	if webDir != "" {
-		fs := http.Dir(webDir)
-		fileServer := http.FileServer(fs)
-		s.mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-			// Try to serve the requested file. If it doesn't exist,
-			// fall back to index.html so Vue Router handles client routes.
-			path := r.URL.Path
-			if path == "/" {
-				fileServer.ServeHTTP(w, r)
-				return
-			}
-			// Check if the file exists on disk.
-			if f, err := fs.Open(path); err == nil {
-				f.Close()
-				fileServer.ServeHTTP(w, r)
-				return
-			}
-			// SPA fallback: serve index.html for unmatched routes.
-			r.URL.Path = "/"
-			fileServer.ServeHTTP(w, r)
-		})
-	}
 
 	return s
 }
