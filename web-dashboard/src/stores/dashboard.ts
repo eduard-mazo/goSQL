@@ -33,6 +33,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const customFrom = ref<string | null>(null)
   const customTo = ref<string | null>(null)
   const loading = ref(false)
+  const normalized = ref(false)
 
   // ── getters ────────────────────────────────────────────────────────
   const filteredOverview = computed(() => {
@@ -53,6 +54,38 @@ export const useDashboardStore = defineStore('dashboard', () => {
     }
     return order.map(name => ({ name, signals: groups[name] }))
   })
+
+  /** Per-signal min/max for normalization */
+  const signalBounds = computed(() => {
+    const bounds: Record<number, { min: number; max: number }> = {}
+    for (const sig of selectedSignals.value) {
+      const values = chartData.value[sig.senalId] || []
+      let min = Infinity
+      let max = -Infinity
+      for (const v of values) {
+        if (v.valor != null) {
+          if (v.valor < min) min = v.valor
+          if (v.valor > max) max = v.valor
+        }
+      }
+      if (min !== Infinity && max !== -Infinity) {
+        bounds[sig.senalId] = { min, max }
+      }
+    }
+    return bounds
+  })
+
+  /** Normalize a value to 0–100 range using its signal's min/max */
+  function normalizeValue(senalId: number, valor: number | null): number | null {
+    if (valor == null) return null
+    const b = signalBounds.value[senalId]
+    if (!b || b.max === b.min) return 50 // flat line → middle
+    return ((valor - b.min) / (b.max - b.min)) * 100
+  }
+
+  function toggleNormalized() {
+    normalized.value = !normalized.value
+  }
 
   // ── helpers ────────────────────────────────────────────────────────
   function getDateRange(): { from?: string; to?: string } {
@@ -163,9 +196,11 @@ export const useDashboardStore = defineStore('dashboard', () => {
     customFrom,
     customTo,
     loading,
+    normalized,
     // getters
     filteredOverview,
     overviewGrouped,
+    signalBounds,
     // actions
     loadAll,
     selectStation,
@@ -175,5 +210,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     setRange,
     setCustomRange,
     reloadAllSignalData,
+    normalizeValue,
+    toggleNormalized,
   }
 })

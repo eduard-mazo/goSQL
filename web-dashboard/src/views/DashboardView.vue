@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useDashboardStore } from '@/stores/dashboard'
-import OverviewGrid from '@/components/dashboard/OverviewGrid.vue'
+import SignalSelector from '@/components/dashboard/SignalSelector.vue'
 import TimeSeriesChart from '@/components/dashboard/TimeSeriesChart.vue'
 import DataTable from '@/components/dashboard/DataTable.vue'
 
@@ -13,7 +13,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-6 p-6">
+  <div class="flex flex-col gap-5 p-5">
     <!-- Loading state -->
     <div
       v-if="store.loading && store.overview.length === 0"
@@ -28,7 +28,7 @@ onMounted(() => {
 
     <!-- Content -->
     <template v-else>
-      <OverviewGrid />
+      <SignalSelector />
       <TimeSeriesChart />
       <DataTable />
     </template>
