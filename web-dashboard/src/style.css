@@ -1,0 +1,112 @@
+/* Google Fonts — VAG Rounded → Nunito, Thesis Sans → Source Sans 3 */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800;900&family=Source+Sans+3:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+/* ══════════════════════════════════════════════════════════════════════
+   EPM ROC Monitor — Design Tokens
+   Based on EPM Brand Manual: Verde Citrico, Verde Bosque, VAG Rounded
+   ══════════════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* ── EPM Brand Colors ─────────────────────────────────────────── */
+  --color-epm-citric: #86C444;
+  --color-epm-citric-light: #9fcf67;
+  --color-epm-citric-50: #f4fbe8;
+  --color-epm-citric-100: #e5f5cc;
+  --color-epm-citric-200: #cceb9e;
+  --color-epm-citric-300: #aede66;
+  --color-epm-citric-400: #86C444;
+  --color-epm-citric-500: #6aad25;
+  --color-epm-citric-600: #508a1a;
+  --color-epm-citric-700: #3f6918;
+  --color-epm-citric-800: #345418;
+  --color-epm-citric-900: #2d4819;
+
+  --color-epm-forest: #009653;
+  --color-epm-forest-50: #edfff4;
+  --color-epm-forest-100: #d5ffe5;
+  --color-epm-forest-200: #aeffcc;
+  --color-epm-forest-300: #69ffa6;
+  --color-epm-forest-400: #22f778;
+  --color-epm-forest-500: #00de57;
+  --color-epm-forest-600: #009653;
+  --color-epm-forest-700: #007842;
+  --color-epm-forest-800: #065e37;
+  --color-epm-forest-900: #074d2f;
+
+  --color-epm-gray: #8B8D8E;
+  --color-epm-gray-50: #f8f8f8;
+  --color-epm-gray-100: #f0f0f0;
+  --color-epm-gray-200: #e4e4e4;
+  --color-epm-gray-300: #d1d1d1;
+  --color-epm-gray-400: #8B8D8E;
+  --color-epm-gray-500: #6d6d6d;
+  --color-epm-gray-600: #5d5d5d;
+  --color-epm-gray-700: #4f4f4f;
+  --color-epm-gray-800: #3a3a3a;
+  --color-epm-gray-900: #262626;
+
+  /* ── Semantic Colors ──────────────────────────────────────────── */
+  --color-background: #ffffff;
+  --color-foreground: #1a1a1a;
+  --color-card: #ffffff;
+  --color-card-foreground: #1a1a1a;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #1a1a1a;
+  --color-primary: #009653;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f4fbe8;
+  --color-secondary-foreground: #3f6918;
+  --color-muted: #f8f8f8;
+  --color-muted-foreground: #6d6d6d;
+  --color-accent: #f4fbe8;
+  --color-accent-foreground: #3f6918;
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #e4e4e4;
+  --color-input: #e4e4e4;
+  --color-ring: #009653;
+
+  /* ── Chart Palette (EPM complementary) ────────────────────────── */
+  --color-chart-1: #009653;
+  --color-chart-2: #86C444;
+  --color-chart-3: #d29922;
+  --color-chart-4: #0082b6;
+  --color-chart-5: #d56b00;
+  --color-chart-6: #7cb900;
+  --color-chart-7: #008c6b;
+  --color-chart-8: #53ad00;
+
+  /* ── Radius ───────────────────────────────────────────────────── */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* ── Fonts ────────────────────────────────────────────────────── */
+  --font-display: 'Nunito', 'Varela Round', system-ui, sans-serif;
+  --font-sans: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', monospace;
+}
+
+/* ── Base Styles ───────────────────────────────────────────────────── */
+
+html {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────── */
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-epm-gray-300); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-epm-gray-400); }
