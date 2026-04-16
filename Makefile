@@ -35,10 +35,13 @@ SQLITE_DB ?= ./roc.db
 # ── targets por defecto ───────────────────────────────────────────────────────
 .DEFAULT_GOAL := help
 
+# Dashboard frontend (Vue 3 + Vite) — must have Node >= 18 and npm
+DASHBOARD_DIR := ./web-dashboard
+
 .PHONY: all build build-race \
         run seed sync \
         run-sqlite seed-sqlite sync-sqlite push-to-oracle backfill-oracle \
-        serve serve-oracle \
+        serve serve-oracle serve-dev dashboard-build dashboard-dev dashboard-install \
         dev \
         test test-verbose test-race test-cover \
         vet fmt fmt-check lint staticcheck check \
@@ -99,13 +102,39 @@ push-to-oracle: build
 backfill-oracle: build
 	$(TARGET) --sqlite $(SQLITE_DB) backfill
 
-## serve: dashboard web — sirve la API y frontend en http://localhost:8080
+## serve: API + built frontend — SQLite (build dashboard first with: make dashboard-build)
 serve: build
 	$(TARGET) --sqlite $(SQLITE_DB) serve
 
-## serve-oracle: dashboard web con Oracle como backend
+## serve-oracle: API + built frontend — Oracle (requires .env)
 serve-oracle: build
 	$(TARGET) serve
+
+## serve-dev: API backend only for Vue dev server (Vite proxies /api → :8080)
+serve-dev: build
+	$(TARGET) --sqlite $(SQLITE_DB) serve :8080
+
+## serve-full: instala deps, compila dashboard y lanza (SQLite, todo-en-uno)
+serve-full: build dashboard-build
+	$(TARGET) --sqlite $(SQLITE_DB) serve
+
+# ── dashboard (Vue 3 + Vite) ─────────────────────────────────────────────────
+
+## dashboard-install: instala dependencias npm del dashboard
+dashboard-install:
+	@echo "==> npm install (web-dashboard)"
+	cd $(DASHBOARD_DIR) && npm install
+
+## dashboard-dev: inicia Vite dev server en :5173 (requiere serve-dev en paralelo)
+dashboard-dev:
+	@echo "==> vite dev server (http://localhost:5173)"
+	cd $(DASHBOARD_DIR) && npm run dev
+
+## dashboard-build: compila el dashboard Vue → web-dashboard/dist/
+dashboard-build:
+	@echo "==> dashboard build"
+	cd $(DASHBOARD_DIR) && npm run build
+	@echo "    OK → $(DASHBOARD_DIR)/dist/"
 
 ## dev: compila y corre sin generar binario (Oracle, subcomando run)
 dev:
@@ -192,10 +221,10 @@ deps-list:
 
 # ── limpieza ──────────────────────────────────────────────────────────────────
 
-## clean: elimina binarios, artefactos de cobertura y la base SQLite local
+## clean: elimina binarios, artefactos de cobertura y dist del dashboard
 clean:
 	@echo "==> clean"
-	@rm -rf $(BUILD_DIR) cover.out cover.html
+	@rm -rf $(BUILD_DIR) cover.out cover.html $(DASHBOARD_DIR)/dist
 	@echo "    OK"
 
 # ── ayuda ─────────────────────────────────────────────────────────────────────
@@ -211,4 +240,9 @@ help:
 		awk -F: '{printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 	@echo "  Override SQLite path:  make run-sqlite SQLITE_DB=/path/to/file.db"
+	@echo ""
+	@echo "  ── Dashboard workflows ──"
+	@echo "  Development (hot-reload):   terminal 1: make serve-dev"
+	@echo "                              terminal 2: make dashboard-dev"
+	@echo "  Production (single server): make serve-full"
 	@echo ""

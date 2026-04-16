@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -16,16 +15,18 @@ import (
 // runServe starts the dashboard HTTP server.
 // It opens the database (Oracle or SQLite) and serves:
 //   - /api/*   — JSON endpoints (stations, signals, values, overview, stats)
-//   - /*       — static frontend from the web/ directory
+//   - /*       — static frontend (if a dist/web directory is found)
+//
+// In development the Vue app runs on its own Vite dev server and proxies
+// /api calls to this backend, so no static directory is needed.
 func runServe(ctx context.Context, database *db.DB, addr string) error {
-	// Locate the web/ directory relative to the executable, then fall back
-	// to the working directory.  This allows "go run" and compiled binary
-	// to both find the static assets.
 	webDir := findWebDir()
-	if webDir == "" {
-		return fmt.Errorf("cannot find web/ directory — run from the project root or place web/ next to the binary")
+	if webDir != "" {
+		log.Printf("[serve] static files → %s", webDir)
+	} else {
+		log.Println("[serve] no static directory found — API-only mode")
+		log.Println("[serve] (run 'npm run build' inside web-dashboard/ to generate dist/)")
 	}
-	log.Printf("[serve] static files → %s", webDir)
 
 	srv := api.New(database, webDir)
 
@@ -42,15 +43,24 @@ func runServe(ctx context.Context, database *db.DB, addr string) error {
 	return srv.ListenAndServe(srvCtx, addr)
 }
 
-// findWebDir probes several locations for the web/ folder.
+// findWebDir probes several locations for the frontend build output.
+// Priority: web-dashboard/dist (Vue build) → web/ (legacy vanilla).
 func findWebDir() string {
-	candidates := []string{
-		"web", // cwd
-	}
+	var candidates []string
+
+	// cwd-relative
+	candidates = append(candidates,
+		filepath.Join("web-dashboard", "dist"), // Vue build output
+		"web", // legacy vanilla dashboard
+	)
 
 	// next to the executable
 	if exe, err := os.Executable(); err == nil {
-		candidates = append(candidates, filepath.Join(filepath.Dir(exe), "web"))
+		dir := filepath.Dir(exe)
+		candidates = append(candidates,
+			filepath.Join(dir, "web-dashboard", "dist"),
+			filepath.Join(dir, "web"),
+		)
 	}
 
 	for _, c := range candidates {

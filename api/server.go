@@ -26,7 +26,9 @@ type Server struct {
 }
 
 // New creates a Server, wires all routes, and returns it.
-// webDir is the path to the static frontend files (the web/ directory).
+// webDir is the path to the static frontend files (Vue dist/ or legacy web/).
+// If webDir is empty the server operates in API-only mode (for development
+// with the Vite dev server proxying /api calls).
 func New(database *db.DB, webDir string) *Server {
 	s := &Server{
 		db:        database,
@@ -42,8 +44,29 @@ func New(database *db.DB, webDir string) *Server {
 	s.mux.HandleFunc("GET /api/overview", s.handleOverview)
 	s.mux.HandleFunc("GET /api/stats", s.handleStats)
 
-	// Static frontend
-	s.mux.Handle("GET /", http.FileServer(http.Dir(webDir)))
+	// Static frontend (SPA with history-mode fallback)
+	if webDir != "" {
+		fs := http.Dir(webDir)
+		fileServer := http.FileServer(fs)
+		s.mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+			// Try to serve the requested file. If it doesn't exist,
+			// fall back to index.html so Vue Router handles client routes.
+			path := r.URL.Path
+			if path == "/" {
+				fileServer.ServeHTTP(w, r)
+				return
+			}
+			// Check if the file exists on disk.
+			if f, err := fs.Open(path); err == nil {
+				f.Close()
+				fileServer.ServeHTTP(w, r)
+				return
+			}
+			// SPA fallback: serve index.html for unmatched routes.
+			r.URL.Path = "/"
+			fileServer.ServeHTTP(w, r)
+		})
+	}
 
 	return s
 }
