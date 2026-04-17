@@ -8,10 +8,16 @@ import {
   fetchValues,
 } from '@/api/client'
 
-/** Chart colors matching EPM complementary palette */
+/** Chart colors — high contrast, perceptually distinct for overlaid lines */
 export const CHART_COLORS = [
-  '#009653', '#86C444', '#d29922', '#0082b6',
-  '#d56b00', '#7cb900', '#008c6b', '#53ad00',
+  '#009653', // EPM forest green
+  '#e04040', // red
+  '#0082b6', // cerulean blue
+  '#d56b00', // burnt orange
+  '#8b5cf6', // violet
+  '#d29922', // amber/gold
+  '#ec4899', // pink
+  '#1a9090', // teal
 ]
 
 export interface SelectedSignal {
@@ -34,6 +40,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const customTo = ref<string | null>(null)
   const loading = ref(false)
   const normalized = ref(false)
+  const showFill = ref(false)
 
   // ── getters ────────────────────────────────────────────────────────
   const filteredOverview = computed(() => {
@@ -75,16 +82,21 @@ export const useDashboardStore = defineStore('dashboard', () => {
     return bounds
   })
 
-  /** Normalize a value to 0–100 range using its signal's min/max */
+  /** Normalize a value to 0–100 range using its signal's min/max, clamped */
   function normalizeValue(senalId: number, valor: number | null): number | null {
     if (valor == null) return null
     const b = signalBounds.value[senalId]
     if (!b || b.max === b.min) return 50 // flat line → middle
-    return ((valor - b.min) / (b.max - b.min)) * 100
+    const pct = ((valor - b.min) / (b.max - b.min)) * 100
+    return Math.max(0, Math.min(100, pct))
   }
 
   function toggleNormalized() {
     normalized.value = !normalized.value
+  }
+
+  function toggleFill() {
+    showFill.value = !showFill.value
   }
 
   // ── helpers ────────────────────────────────────────────────────────
@@ -197,6 +209,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     customTo,
     loading,
     normalized,
+    showFill,
     // getters
     filteredOverview,
     overviewGrouped,
@@ -212,5 +225,6 @@ export const useDashboardStore = defineStore('dashboard', () => {
     reloadAllSignalData,
     normalizeValue,
     toggleNormalized,
+    toggleFill,
   }
 })

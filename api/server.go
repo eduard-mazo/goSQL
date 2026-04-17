@@ -251,10 +251,8 @@ func (s *Server) handleValues(w http.ResponseWriter, r *http.Request) {
 			}{v.Fecha, v.SyncedAt, v.SenalID, v.Valor})
 		}
 	} else {
-		// Default: last 7 days
-		hasta := time.Now()
-		desde := hasta.AddDate(0, 0, -7)
-		raw, err := s.valorRepo.FindByRango(ctx, senalID, desde, hasta)
+		// No range: return ALL values for this signal.
+		raw, err := s.valorRepo.FindBySenalID(ctx, senalID)
 		if err != nil {
 			writeErr(w, 500, err.Error())
 			return
